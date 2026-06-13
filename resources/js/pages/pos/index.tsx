@@ -78,7 +78,7 @@ export default function POSIndex() {
     }, [isDragging]);
 
     // Format currency for Indonesian Rupiah (no decimal places)
-    
+
     const formatNumberInput = (val: number | string) => {
         if (!val && val !== 0) return '';
         const num = Number(val.toString().replace(/\D/g, ''));
@@ -103,7 +103,7 @@ export default function POSIndex() {
             }
 
             const currentTime = Date.now();
-            
+
             // Jika jeda antar ketikan lebih dari 50ms, anggap itu ketikan manual, bukan scanner
             if (currentTime - lastKeyTime > 50) {
                 barcodeBuffer = '';
@@ -203,7 +203,7 @@ export default function POSIndex() {
                 if (product) {
                     let basePrice = Number(product.selling_price) || 0;
                     isWholesale = false;
-                    
+
                     if (product.wholesale_prices && product.wholesale_prices.length > 0) {
                         const sortedWholesale = [...product.wholesale_prices].sort((a, b) => b.min_qty - a.min_qty);
                         for (const wp of sortedWholesale) {
@@ -263,7 +263,7 @@ export default function POSIndex() {
     const totalDiscount = cart.reduce((sum, item) => sum + (item.discount_amount || 0), 0);
     const totalTax = cart.reduce((sum, item) => sum + (item.tax_amount || 0), 0);
     const totalAmount = subtotal - totalDiscount + totalTax + (extraCharge || 0);
-    
+
     let calculatedPaidAmount = paidAmount;
     if (paymentMethod === 'split') {
         calculatedPaidAmount = (cashAmount || 0) + (transferAmount || 0);
@@ -432,14 +432,13 @@ export default function POSIndex() {
                                     const isLowStock = !isOutOfStock && product.current_stock <= (product.reorder_point || 0);
 
                                     return (
-                                            <Card
-                                                key={product.id}
-                                                className={`group overflow-hidden shadow-sm transition-all duration-200 ${
-                                                    isOutOfStock ? 'opacity-60 cursor-not-allowed bg-muted/30 grayscale-[50%] border-border/50' : 
-                                                    isLowStock ? 'cursor-pointer border-destructive/50 hover:border-destructive hover:shadow-lg' :
+                                        <Card
+                                            key={product.id}
+                                            className={`group overflow-hidden shadow-sm transition-all duration-200 ${isOutOfStock ? 'opacity-60 cursor-not-allowed bg-muted/30 grayscale-[50%] border-border/50' :
+                                                isLowStock ? 'cursor-pointer border-destructive/50 hover:border-destructive hover:shadow-lg' :
                                                     'cursor-pointer border-border/50 hover:border-primary/50 hover:shadow-lg'
                                                 }`}
-                                                style={{ borderTopWidth: product.category?.color ? '4px' : undefined, borderTopColor: product.category?.color || undefined }}
+                                            style={{ borderTopWidth: product.category?.color ? '4px' : undefined, borderTopColor: product.category?.color || undefined }}
                                             onClick={() => {
                                                 if (isOutOfStock) {
                                                     toast.error('Stok produk habis!');
@@ -449,9 +448,8 @@ export default function POSIndex() {
                                             }}
                                         >
                                             <div className="aspect-square bg-muted relative overflow-hidden flex items-center justify-center">
-                                                <div className={`w-full h-full bg-gradient-to-br flex items-center justify-center ${
-                                                    isLowStock ? 'from-destructive/20 to-destructive/5' : 'from-primary/20 to-primary/5'
-                                                }`}>
+                                                <div className={`w-full h-full bg-gradient-to-br flex items-center justify-center ${isLowStock ? 'from-destructive/20 to-destructive/5' : 'from-primary/20 to-primary/5'
+                                                    }`}>
                                                     <span className={`text-3xl font-bold ${isLowStock ? 'text-destructive/60' : 'text-primary/60'}`}>
                                                         {product.name?.charAt(0).toUpperCase() || 'P'}
                                                     </span>
@@ -472,23 +470,20 @@ export default function POSIndex() {
                                                 )}
                                             </div>
                                             <CardContent className="p-3 space-y-2 bg-card">
-                                                <h3 className={`font-semibold text-sm line-clamp-1 leading-tight ${
-                                                    isOutOfStock ? 'text-muted-foreground' : 
+                                                <h3 className={`font-semibold text-sm line-clamp-1 leading-tight ${isOutOfStock ? 'text-muted-foreground' :
                                                     isLowStock ? 'text-destructive' : ''
-                                                }`} title={product.name}>{product.name}</h3>
+                                                    }`} title={product.name}>{product.name}</h3>
                                                 <div className="flex items-center gap-1.5">
                                                     {product.category?.color && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: product.category.color }} />}
                                                     <p className="text-[10px] text-muted-foreground truncate">{product.category?.name || product.sku}</p>
                                                 </div>
                                                 <div className="flex items-center justify-between pt-1">
-                                                    <p className={`text-sm font-bold ${
-                                                        isOutOfStock ? 'text-muted-foreground' : 
+                                                    <p className={`text-sm font-bold ${isOutOfStock ? 'text-muted-foreground' :
                                                         isLowStock ? 'text-destructive' : 'text-primary'
-                                                    }`}>Rp {formatIDR(product.selling_price)}</p>
-                                                    <p className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${
-                                                        isOutOfStock ? 'bg-destructive/10 text-destructive' : 
+                                                        }`}>Rp {formatIDR(product.selling_price)}</p>
+                                                    <p className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${isOutOfStock ? 'bg-destructive/10 text-destructive' :
                                                         isLowStock ? 'bg-destructive text-destructive-foreground' : 'bg-muted/80 text-muted-foreground'
-                                                    }`}>Stok: {product.current_stock}</p>
+                                                        }`}>Stok: {product.current_stock}</p>
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -500,12 +495,12 @@ export default function POSIndex() {
                 </div>
 
                 {/* Right Panel - Cart */}
-                <div 
+                <div
                     className="flex flex-col h-full overflow-hidden bg-card border-l border-border shadow-2xl z-10 relative transition-all duration-0"
                     style={{ width: `${cartWidth}px`, minWidth: '300px' }}
                 >
                     {/* Resizer Handle */}
-                    <div 
+                    <div
                         className="absolute top-0 bottom-0 left-0 w-3 -ml-[6px] cursor-col-resize z-50 hover:bg-primary/50 active:bg-primary/80 group flex items-center justify-center transition-colors"
                         onMouseDown={() => setIsDragging(true)}
                     >
@@ -632,7 +627,7 @@ export default function POSIndex() {
                         </div>
 
                         <div className="space-y-2">
-                            
+
 
                             <div className="space-y-2">
                                 <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Metode Pembayaran</Label>
@@ -747,7 +742,7 @@ export default function POSIndex() {
                 <Dialog open={showReceipt} onOpenChange={(open) => {
                     if (!open) handleNewSale();
                 }}>
-                    <DialogContent 
+                    <DialogContent
                         onInteractOutside={(e) => e.preventDefault()}
                         className="max-w-md bg-transparent border-none shadow-none print:shadow-none print:bg-white print:max-w-full print:top-0 print:left-0 print:translate-x-0 print:translate-y-0 print:p-0 print:m-0 print:border-none print:absolute"
                     >
@@ -756,95 +751,114 @@ export default function POSIndex() {
                                 <DialogHeader className="sr-only">
                                     <DialogTitle>Receipt</DialogTitle>
                                 </DialogHeader>
-                                <div className="text-center space-y-1">
-                                    <h3 className="text-base font-black tracking-tight">{auth.user.store_name || branch?.name || 'Toko Paylo'}</h3>
-                                    <p className="text-[10px] text-muted-foreground mt-1">{new Date().toLocaleString()}</p>
-                                </div>
 
-                                <div className="flex items-center justify-between border-y border-border/50 border-dashed py-2 my-3">
-                                    <span className="text-[10px] font-semibold uppercase text-muted-foreground">No Penjualan</span>
-                                    <span className="text-xs font-bold font-mono">{lastSale.number}</span>
-                                </div>
+                                <div className="font-mono text-xs text-black pb-4">
+                                    {/* Header */}
+                                    <div className="text-center font-bold text-sm mb-2 uppercase">
+                                        {auth.user.store_name || branch?.name || 'TOKO FADILLAH'}
+                                    </div>
+                                    <div className="mb-2">
+                                        <p>JL. SAMRATULANGI (Bundaran Mandonga)</p>
+                                        <p>Telp: 082236013446</p>
+                                    </div>
 
-                                <div className="space-y-2 mb-3">
-                                    {lastSale.items.map((item: any) => {
-                                        let wholesaleInfo = '';
-                                        if (item.product?.wholesale_prices && item.product.wholesale_prices.length > 0) {
-                                            const sorted = [...item.product.wholesale_prices].sort((a: any, b: any) => a.min_qty - b.min_qty);
-                                            wholesaleInfo = sorted.map((wp: any) => `≥${wp.min_qty}: Rp${formatIDR(wp.price)}`).join(' | ');
-                                        }
+                                    {/* Meta Info */}
+                                    <div className="mb-2">
+                                        <div className="flex justify-between">
+                                            <span>No.  : {lastSale.number}</span>
+                                            <span>{new Date(lastSale.created_at || new Date()).toLocaleDateString('id-ID')}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Kasir: {auth.user.name || 'ADMIN'}</span>
+                                            <span>{new Date(lastSale.created_at || new Date()).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                                        </div>
+                                        <p>Pel. : {lastSale.customer ? lastSale.customer.name : 'UMUM'}</p>
+                                    </div>
 
-                                        return (
-                                            <div key={item.id} className="flex justify-between items-start text-xs">
-                                                <div className="pr-4">
-                                                    <p className="font-semibold leading-tight">{item.product.name}</p>
-                                                    {wholesaleInfo && (
-                                                        <p className="text-[8px] text-muted-foreground mt-0.5 leading-tight">Grosir: {wholesaleInfo}</p>
-                                                    )}
-                                                    <p className="text-[10px] text-muted-foreground">{item.quantity} x Rp {formatIDR(item.unit_price - item.discount_amount/item.quantity)}</p>
+                                    <div className="border-t border-dashed border-black my-1"></div>
+
+                                    {/* Items */}
+                                    <div className="mb-2">
+                                        {lastSale.items.map((item: any) => (
+                                            <div key={item.id} className="mb-1">
+                                                <p>{item.product.name}</p>
+                                                <div className="flex justify-between">
+                                                    <span>{formatIDR(item.unit_price)} x {item.quantity} {item.product.unit || 'PCS'}x =</span>
+                                                    <span>{formatIDR(item.total)}</span>
                                                 </div>
-                                                <span className="font-bold whitespace-nowrap">Rp {formatIDR(item.total)}</span>
                                             </div>
-                                        );
-                                    })}
-                                </div>
+                                        ))}
+                                    </div>
 
-                                <div className="border-t border-border/50 border-dashed pt-3 space-y-1.5">
-                                    <div className="flex justify-between text-xs text-muted-foreground">
-                                        <span>Subtotal</span>
-                                        <span>Rp {formatIDR(lastSale.subtotal)}</span>
-                                    </div>
-                                    {lastSale.discount_amount > 0 && (
-                                        <div className="flex justify-between text-xs text-destructive">
-                                            <span>Diskon</span>
-                                            <span>-Rp {formatIDR(lastSale.discount_amount)}</span>
-                                        </div>
-                                    )}
-                                    {lastSale.tax_amount > 0 && (
-                                        <div className="flex justify-between text-xs text-muted-foreground">
-                                            <span>Pajak</span>
-                                            <span>Rp {formatIDR(lastSale.tax_amount)}</span>
-                                        </div>
-                                    )}
-                                    {lastSale.extra_charge_amount > 0 && (
-                                        <div className="flex justify-between text-xs text-muted-foreground">
-                                            <span>Biaya Tambahan</span>
-                                            <span>Rp {formatIDR(lastSale.extra_charge_amount)}</span>
-                                        </div>
-                                    )}
-                                    <div className="flex justify-between font-black text-sm pt-1.5 pb-1.5">
-                                        <span>Total</span>
-                                        <span>Rp {formatIDR(lastSale.total_amount)}</span>
-                                    </div>
-                                    {lastSale.payment_method === 'split' ? (
-                                        <>
-                                            <div className="flex justify-between text-xs">
-                                                <span className="text-muted-foreground">Tunai</span>
-                                                <span className="font-medium">Rp {formatIDR(lastSale.cash_amount)}</span>
-                                            </div>
-                                            <div className="flex justify-between text-xs">
-                                                <span className="text-muted-foreground">Transfer</span>
-                                                <span className="font-medium">Rp {formatIDR(lastSale.transfer_amount)}</span>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-muted-foreground">Dibayar ({lastSale.payment_method})</span>
-                                            <span className="font-medium">Rp {formatIDR(lastSale.paid_amount)}</span>
-                                        </div>
-                                    )}
-                                    <div className="flex justify-between text-xs">
-                                        <span className="text-muted-foreground">Kembalian</span>
-                                        <span className="font-bold">Rp {formatIDR(lastSale.change_amount)}</span>
-                                    </div>
-                                </div>
+                                    <div className="border-t border-dashed border-black my-1"></div>
 
-                                <div className="text-center mt-5 pt-3 border-t border-border/50 border-dashed">
-                                    <p className="text-xs font-bold">Terima Kasih!</p>
-                                    <p className="text-[10px] text-muted-foreground">Silakan datang kembali</p>
-                                    <div className="mt-3 flex justify-center items-center gap-1">
-                                        <span className="text-[10px] text-muted-foreground">Powered by</span>
-                                        <span className="text-[10px] font-black tracking-tighter">PAYLO</span>
+                                    {/* Totals */}
+                                    <div className="mb-2">
+                                        <div className="flex justify-between">
+                                            <span>Subtotal =</span>
+                                            <span>{formatIDR(lastSale.subtotal)}</span>
+                                        </div>
+                                        {lastSale.extra_charge_amount > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>Biaya Lain =</span>
+                                                <span>{formatIDR(lastSale.extra_charge_amount)}</span>
+                                            </div>
+                                        )}
+                                        {lastSale.discount_amount > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>Diskon =</span>
+                                                <span>-{formatIDR(lastSale.discount_amount)}</span>
+                                            </div>
+                                        )}
+                                        {lastSale.tax_amount > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>Pajak =</span>
+                                                <span>{formatIDR(lastSale.tax_amount)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between">
+                                            <span>Total Akhir =</span>
+                                            <span>{formatIDR(lastSale.total_amount)}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="border-t border-dashed border-black my-1"></div>
+
+                                    {/* Payments */}
+                                    <div className="mb-2">
+                                        {lastSale.payment_method === 'split' ? (
+                                            <>
+                                                <div className="flex justify-between">
+                                                    <span>Tunai      =</span>
+                                                    <span>{formatIDR(lastSale.cash_amount)}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>Transfer   =</span>
+                                                    <span>{formatIDR(lastSale.transfer_amount)}</span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="flex justify-between">
+                                                <span className="capitalize">{lastSale.payment_method === 'cash' ? 'Tunai' : (lastSale.payment_method === 'transfer' ? 'Transfer' : lastSale.payment_method)} =</span>
+                                                <span>{formatIDR(lastSale.paid_amount)}</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="border-t border-dashed border-black my-1"></div>
+
+                                    <div className="flex justify-between mb-4">
+                                        <span>Kembali    =</span>
+                                        <span>{formatIDR(lastSale.change_amount)}</span>
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div className="text-center mt-6">
+                                        <p>Terima Kasih.</p>
+                                        <div className="mt-3 flex justify-center items-center gap-1 text-black">
+                                            <span className="text-[10px]">Powered by</span>
+                                            <span className="text-[10px] font-black tracking-tighter">PAYLO</span>
+                                        </div>
                                     </div>
                                 </div>
 

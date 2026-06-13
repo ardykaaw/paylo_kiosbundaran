@@ -18,6 +18,16 @@ interface PurchaseItem {
     notes: string;
 }
 
+
+    const formatNumberInput = (val: number | string) => {
+        if (val === null || val === undefined || val === '') return '';
+        const num = Number(val.toString().replace(/\D/g, ''));
+        return num === 0 && val.toString() !== '0' ? '' : num.toLocaleString('id-ID');
+    };
+    const parseNumberInput = (val: string) => {
+        return Number(val.replace(/\D/g, '')) || 0;
+    };
+
 export default function PurchaseCreate() {
     const { props } = usePage();
     const { branches, suppliers, products, purchaseNumber } = props as any;
@@ -261,44 +271,24 @@ export default function PurchaseCreate() {
 
                                                 <div className="space-y-2">
                                                     <Label>Quantity *</Label>
-                                                    <Input
-                                                        type="number"
-                                                        step="0.01"
-                                                        value={item.quantity}
-                                                        onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value))}
-                                                    />
+                                                    <Input type="text" value={formatNumberInput(item.quantity)} onChange={(e) => updateItem(index, 'quantity', parseNumberInput(e.target.value))} />
                                                 </div>
                                             </div>
 
                                             <div className="grid gap-4 md:grid-cols-3">
                                                 <div className="space-y-2">
                                                     <Label>Unit Price *</Label>
-                                                    <Input
-                                                        type="number"
-                                                        step="0.01"
-                                                        value={item.unit_price}
-                                                        onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value))}
-                                                    />
+                                                    <Input type="text" value={formatNumberInput(item.unit_price)} onChange={(e) => updateItem(index, 'unit_price', parseNumberInput(e.target.value))} />
                                                 </div>
 
                                                 <div className="space-y-2">
                                                     <Label>Discount %</Label>
-                                                    <Input
-                                                        type="number"
-                                                        step="0.01"
-                                                        value={item.discount_percent}
-                                                        onChange={(e) => updateItem(index, 'discount_percent', parseFloat(e.target.value))}
-                                                    />
+                                                    <Input type="text" value={formatNumberInput(item.discount_percent)} onChange={(e) => updateItem(index, 'discount_percent', parseNumberInput(e.target.value))} />
                                                 </div>
 
                                                 <div className="space-y-2">
                                                     <Label>Tax %</Label>
-                                                    <Input
-                                                        type="number"
-                                                        step="0.01"
-                                                        value={item.tax_percent}
-                                                        onChange={(e) => updateItem(index, 'tax_percent', parseFloat(e.target.value))}
-                                                    />
+                                                    <Input type="text" value={formatNumberInput(item.tax_percent)} onChange={(e) => updateItem(index, 'tax_percent', parseNumberInput(e.target.value))} />
                                                 </div>
                                             </div>
 

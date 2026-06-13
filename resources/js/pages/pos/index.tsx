@@ -43,7 +43,51 @@ export default function POSIndex() {
     const [showPriceModal, setShowPriceModal] = useState(false);
     const [selectedProductForPrice, setSelectedProductForPrice] = useState<any>(null);
 
+    // Resizing states
+    const [cartWidth, setCartWidth] = useState(420);
+    const [isDragging, setIsDragging] = useState(false);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isDragging) return;
+            const newWidth = window.innerWidth - e.clientX;
+            if (newWidth >= 300 && newWidth <= Math.min(800, window.innerWidth - 300)) {
+                setCartWidth(newWidth);
+            }
+        };
+
+        const handleMouseUp = () => {
+            if (isDragging) {
+                setIsDragging(false);
+            }
+        };
+
+        if (isDragging) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.body.style.userSelect = 'none';
+        } else {
+            document.body.style.userSelect = '';
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.userSelect = '';
+        };
+    }, [isDragging]);
+
     // Format currency for Indonesian Rupiah (no decimal places)
+    
+    const formatNumberInput = (val: number | string) => {
+        if (!val && val !== 0) return '';
+        const num = Number(val.toString().replace(/\D/g, ''));
+        return num === 0 && val.toString() !== '0' ? '' : num.toLocaleString('id-ID');
+    };
+    const parseNumberInput = (val: string) => {
+        return Number(val.replace(/\D/g, '')) || 0;
+    };
+
     const formatIDR = (value: number) => {
         return Math.round(value).toLocaleString('id-ID');
     };
@@ -423,7 +467,7 @@ export default function POSIndex() {
                                                     </div>
                                                 ) : (
                                                     <div className="absolute top-2 right-2 bg-primary/90 text-primary-foreground p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-md">
-                                                        <Plus className="h-3 w-3" />
+                                                        <Plus className="h-8 w-8" />
                                                     </div>
                                                 )}
                                             </div>
@@ -456,7 +500,17 @@ export default function POSIndex() {
                 </div>
 
                 {/* Right Panel - Cart */}
-                <div className="w-[420px] flex flex-col bg-card border-l border-border shadow-2xl z-10">
+                <div 
+                    className="flex flex-col h-full overflow-hidden bg-card border-l border-border shadow-2xl z-10 relative transition-all duration-0"
+                    style={{ width: `${cartWidth}px`, minWidth: '300px' }}
+                >
+                    {/* Resizer Handle */}
+                    <div 
+                        className="absolute top-0 bottom-0 left-0 w-3 -ml-[6px] cursor-col-resize z-50 hover:bg-primary/50 active:bg-primary/80 group flex items-center justify-center transition-colors"
+                        onMouseDown={() => setIsDragging(true)}
+                    >
+                        <div className={`h-12 w-1 rounded-full bg-primary/30 group-hover:bg-primary/80 ${isDragging ? 'bg-primary' : ''}`} />
+                    </div>
                     <div className="p-3 border-b border-border bg-card/80 backdrop-blur-sm space-y-2">
                         <div className="flex items-center justify-between">
                             <h2 className="text-sm font-bold flex items-center gap-1.5">
@@ -497,13 +551,13 @@ export default function POSIndex() {
                                     <div className="p-2.5">
                                         <div className="flex justify-between items-start gap-2">
                                             <div className="flex-1 min-w-0">
-                                                <p className="font-semibold text-xs leading-tight truncate">{item.product_name}</p>
-                                                <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{item.product_sku}</p>
+                                                <p className="font-bold text-4xl leading-tight truncate">{item.product_name}</p>
+                                                <p className="text-2xl uppercase tracking-wider text-muted-foreground mt-0.5">{item.product_sku}</p>
                                                 {item.wholesale_info_string && (
-                                                    <p className="text-[9px] text-green-600 dark:text-green-400 mt-0.5 font-medium leading-tight">Grosir: {item.wholesale_info_string}</p>
+                                                    <p className="text-sm text-green-600 dark:text-green-400 mt-0.5 font-medium leading-tight">Grosir: {item.wholesale_info_string}</p>
                                                 )}
                                                 {item.is_wholesale && (
-                                                    <span className="inline-block mt-1 bg-green-500/10 text-green-600 border border-green-500/20 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                                    <span className="inline-block mt-1 bg-green-500/10 text-green-600 border border-green-500/20 text-xs font-bold px-1.5 py-0.5 rounded">
                                                         Harga Grosir Aktif
                                                     </span>
                                                 )}
@@ -511,10 +565,10 @@ export default function POSIndex() {
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                className="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive shrink-0 transition-colors"
+                                                className="h-16 w-16 text-muted-foreground hover:bg-destructive/10 hover:text-destructive shrink-0 transition-colors"
                                                 onClick={() => removeFromCart(item.product_id)}
                                             >
-                                                <Trash2 className="h-3.5 w-3.5" />
+                                                <Trash2 className="h-8 w-8" />
                                             </Button>
                                         </div>
 
@@ -523,31 +577,29 @@ export default function POSIndex() {
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
-                                                    className="h-7 w-7 rounded hover:bg-muted"
+                                                    className="h-16 w-16 rounded hover:bg-muted"
                                                     onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
                                                 >
-                                                    <Minus className="h-3 w-3" />
+                                                    <Minus className="h-8 w-8" />
                                                 </Button>
                                                 <Input
-                                                    type="number"
-                                                    min="0.01"
-                                                    step="0.01"
-                                                    value={item.quantity}
-                                                    onChange={(e) => updateQuantity(item.product_id, parseFloat(e.target.value))}
-                                                    className="h-7 w-14 text-center text-xs border-0 bg-transparent px-1 font-bold focus-visible:ring-0"
+                                                    type="text"
+                                                    value={formatNumberInput(item.quantity)}
+                                                    onChange={(e) => updateQuantity(item.product_id, parseNumberInput(e.target.value))}
+                                                    className="h-16 w-32 text-center text-3xl border-0 bg-transparent px-1 font-extrabold focus-visible:ring-0"
                                                 />
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
-                                                    className="h-7 w-7 rounded hover:bg-muted"
+                                                    className="h-16 w-16 rounded hover:bg-muted"
                                                     onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
                                                 >
-                                                    <Plus className="h-3 w-3" />
+                                                    <Plus className="h-8 w-8" />
                                                 </Button>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-xs font-semibold text-muted-foreground">Rp {formatIDR(item.unit_price)}</p>
-                                                <p className="text-sm font-bold text-primary">Rp {formatIDR(item.total)}</p>
+                                                <p className="text-3xl font-semibold text-muted-foreground">Rp {formatIDR(item.unit_price)}</p>
+                                                <p className="text-4xl font-bold text-primary">Rp {formatIDR(item.total)}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -557,24 +609,24 @@ export default function POSIndex() {
                     </div>
 
                     <div className="border-t border-border bg-card p-2 space-y-2 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.3)] relative">
-                        <div className="space-y-1">
-                            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-                                <div className="flex gap-2">
-                                    <span>Sub: <span className="text-foreground">Rp {formatIDR(subtotal)}</span></span>
-                                    {totalDiscount > 0 && <span className="text-destructive">Disc: -Rp {formatIDR(totalDiscount)}</span>}
-                                    {totalTax > 0 && <span>Tax: Rp {formatIDR(totalTax)}</span>}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center text-base text-muted-foreground">
+                                <div className="flex gap-3">
+                                    <span>Sub: <span className="text-foreground font-semibold">Rp {formatIDR(subtotal)}</span></span>
+                                    {totalDiscount > 0 && <span className="text-destructive font-semibold">Disc: -Rp {formatIDR(totalDiscount)}</span>}
+                                    {totalTax > 0 && <span className="font-semibold">Tax: Rp {formatIDR(totalTax)}</span>}
                                 </div>
                             </div>
-                            <div className="flex justify-between items-center pt-1 border-t border-border border-dashed">
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] text-muted-foreground">Biaya Tambahan:</span>
-                                    <div className="relative w-16">
-                                        <Input type="number" min="0" value={extraCharge === 0 ? '' : extraCharge} onChange={(e) => setExtraCharge(parseFloat(e.target.value) || 0)} placeholder="0" className="h-6 text-right text-[10px] bg-transparent border-border/50 pr-1 pl-1" />
+                            <div className="flex justify-between items-center pt-2 border-t border-border border-dashed">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-base font-semibold text-muted-foreground">Biaya Tambahan:</span>
+                                    <div className="relative w-20">
+                                        <Input type="text" value={extraCharge === 0 ? '' : formatNumberInput(extraCharge)} onChange={(e) => setExtraCharge(parseNumberInput(e.target.value) || 0)} placeholder="0" className="h-10 text-right text-lg font-semibold bg-transparent border-border/50 pr-2 pl-2" />
                                     </div>
                                 </div>
                                 <div className="flex items-end gap-2">
-                                    <span className="text-[11px] font-medium text-muted-foreground mb-0.5">Total</span>
-                                    <span className="text-lg font-black text-primary tracking-tight leading-none">Rp {formatIDR(totalAmount)}</span>
+                                    <span className="text-xl font-bold text-muted-foreground mb-1">Total</span>
+                                    <span className="text-4xl font-black text-primary tracking-tight leading-none">Rp {formatIDR(totalAmount)}</span>
                                 </div>
                             </div>
                         </div>
@@ -582,8 +634,8 @@ export default function POSIndex() {
                         <div className="space-y-2">
                             
 
-                            <div className="space-y-1">
-                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Metode Pembayaran</Label>
+                            <div className="space-y-2">
+                                <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Metode Pembayaran</Label>
                                 <div className="grid grid-cols-5 gap-1">
                                     {[
                                         { id: 'cash', icon: DollarSign, label: 'Tunai' },
@@ -599,11 +651,11 @@ export default function POSIndex() {
                                                 key={method.id}
                                                 type="button"
                                                 variant={isActive ? 'default' : 'outline'}
-                                                className={`h-8 flex flex-row items-center justify-center gap-1 transition-all duration-200 ${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-card shadow-sm' : 'hover:bg-muted border-border/60'}`}
+                                                className={`h-12 flex flex-row items-center justify-center gap-1.5 transition-all duration-200 ${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-card shadow-sm' : 'hover:bg-muted border-border/60'}`}
                                                 onClick={() => setPaymentMethod(method.id)}
                                             >
-                                                <Icon className={`h-3 w-3 ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
-                                                <span className="text-[9px] font-bold tracking-wide">{method.label}</span>
+                                                <Icon className={`h-5 w-5 ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
+                                                <span className="text-sm font-bold tracking-wide">{method.label}</span>
                                             </Button>
                                         )
                                     })}
@@ -613,36 +665,32 @@ export default function POSIndex() {
                             {paymentMethod === 'split' ? (
                                 <div className="space-y-2">
                                     <div className="space-y-1">
-                                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Jumlah Tunai</Label>
+                                        <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Jumlah Tunai</Label>
                                         <div className="relative group">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <span className="text-muted-foreground font-bold group-focus-within:text-primary transition-colors text-xs">Rp</span>
+                                                <span className="text-muted-foreground font-bold group-focus-within:text-primary transition-colors text-base">Rp</span>
                                             </div>
                                             <Input
-                                                type="number"
-                                                min="0"
-                                                step="0.01"
-                                                value={cashAmount || ''}
-                                                onChange={(e) => setCashAmount(parseFloat(e.target.value) || 0)}
+                                                type="text"
+                                                value={cashAmount ? formatNumberInput(cashAmount) : ''}
+                                                onChange={(e) => setCashAmount(parseNumberInput(e.target.value))}
                                                 placeholder="0"
-                                                className="pl-9 h-9 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
+                                                className="pl-10 h-12 text-lg font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
                                             />
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Jumlah Transfer</Label>
+                                        <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Jumlah Transfer</Label>
                                         <div className="relative group">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <span className="text-muted-foreground font-bold group-focus-within:text-primary transition-colors text-xs">Rp</span>
+                                                <span className="text-muted-foreground font-bold group-focus-within:text-primary transition-colors text-base">Rp</span>
                                             </div>
                                             <Input
-                                                type="number"
-                                                min="0"
-                                                step="0.01"
-                                                value={transferAmount || ''}
-                                                onChange={(e) => setTransferAmount(parseFloat(e.target.value) || 0)}
+                                                type="text"
+                                                value={transferAmount ? formatNumberInput(transferAmount) : ''}
+                                                onChange={(e) => setTransferAmount(parseNumberInput(e.target.value))}
                                                 placeholder="0"
-                                                className="pl-9 h-9 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
+                                                className="pl-10 h-12 text-lg font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
                                             />
                                         </div>
                                     </div>
@@ -660,14 +708,12 @@ export default function POSIndex() {
                                 <div className="flex items-center gap-2">
                                     <div className="flex-1 relative group">
                                         <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                                            <span className="text-muted-foreground font-bold group-focus-within:text-primary transition-colors text-xs">Rp</span>
+                                            <span className="text-muted-foreground font-bold group-focus-within:text-primary transition-colors text-base">Rp</span>
                                         </div>
-                                        <Input
-                                            type="number" min="0" step="0.01" value={paidAmount || ''} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0"
-                                            className="pl-8 h-8 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
+                                        <Input type="text" value={formatNumberInput(paidAmount)} onChange={(e) => setPaidAmount(parseNumberInput(e.target.value))} placeholder="0" className="pl-10 h-12 text-lg font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
                                         />
                                     </div>
-                                    <Button type="button" variant="outline" className="h-8 text-[10px] px-2" onClick={() => setPaidAmount(totalAmount)}>
+                                    <Button type="button" variant="outline" className="h-12 text-sm px-4" onClick={() => setPaidAmount(totalAmount)}>
                                         Uang Pas
                                     </Button>
                                 </div>
@@ -675,22 +721,22 @@ export default function POSIndex() {
                         </div>
 
                         {calculatedPaidAmount > 0 && changeAmount >= 0 && (
-                            <div className="flex justify-between items-center p-1.5 px-2 bg-green-500/10 rounded-md border border-green-500/20">
-                                <span className="font-medium text-green-600 dark:text-green-400 text-xs">Kembalian</span>
-                                <span className="text-sm font-black text-green-600 dark:text-green-400">Rp {formatIDR(changeAmount)}</span>
+                            <div className="flex justify-between items-center p-3 px-4 bg-green-500/10 rounded-md border border-green-500/20">
+                                <span className="font-bold text-green-600 dark:text-green-400 text-xl">Kembalian</span>
+                                <span className="text-3xl font-black text-green-600 dark:text-green-400">Rp {formatIDR(changeAmount)}</span>
                             </div>
                         )}
                         {calculatedPaidAmount > 0 && changeAmount < 0 && (
-                            <div className="flex justify-between items-center p-1.5 px-2 bg-destructive/10 rounded-md border border-destructive/20">
-                                <span className="font-medium text-destructive text-xs">Kurang</span>
-                                <span className="text-sm font-black text-destructive">Rp {formatIDR(Math.abs(changeAmount))}</span>
+                            <div className="flex justify-between items-center p-3 px-4 bg-destructive/10 rounded-md border border-destructive/20">
+                                <span className="font-bold text-destructive text-xl">Kurang</span>
+                                <span className="text-3xl font-black text-destructive">Rp {formatIDR(Math.abs(changeAmount))}</span>
                             </div>
                         )}
 
                         <Button
                             onClick={handleProcessSale}
                             disabled={cart.length === 0 || calculatedPaidAmount < totalAmount}
-                            className="w-full h-10 text-sm font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-95 disabled:hover:scale-100 disabled:opacity-50 mt-1"
+                            className="w-full h-14 text-xl font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-95 disabled:hover:scale-100 disabled:opacity-50 mt-1"
                         >
                             Selesaikan Pesanan (Rp {formatIDR(totalAmount)})
                         </Button>

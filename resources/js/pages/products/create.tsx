@@ -7,6 +7,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 
+
+    const formatNumberInput = (val: number | string) => {
+        if (!val && val !== 0) return '';
+        const num = Number(val.toString().replace(/\D/g, ''));
+        return num === 0 && val.toString() !== '0' ? '' : num.toLocaleString('id-ID');
+    };
+    const parseNumberInput = (val: string) => {
+        return Number(val.replace(/\D/g, '')) || 0;
+    };
+
 export default function ProductCreate() {
     const { props } = usePage();
     const { categories } = props as any;
@@ -129,23 +139,13 @@ export default function ProductCreate() {
 
                                 <div className="space-y-2">
                                     <Label htmlFor="cost_price">Harga Modal *</Label>
-                                    <Input
-                                        id="cost_price"
-                                        type="number"
-                                        step="0.01"
-                                        value={data.cost_price}
-                                        onChange={(e) => setData('cost_price', parseFloat(e.target.value))}
+                                    <Input id="cost_price" type="text" value={formatNumberInput(data.cost_price)} onChange={(e) => setData('cost_price', parseNumberInput(e.target.value))}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="selling_price">Harga Jual *</Label>
-                                    <Input
-                                        id="selling_price"
-                                        type="number"
-                                        step="0.01"
-                                        value={data.selling_price}
-                                        onChange={(e) => setData('selling_price', parseFloat(e.target.value))}
+                                    <Input id="selling_price" type="text" value={formatNumberInput(data.selling_price)} onChange={(e) => setData('selling_price', parseNumberInput(e.target.value))}
                                     />
                                 </div>
                             </div>
@@ -177,12 +177,11 @@ export default function ProductCreate() {
                                                 <div className="space-y-2 flex-1">
                                                     <Label>Min. Kuantitas</Label>
                                                     <Input
-                                                        type="number"
-                                                        min="2"
-                                                        value={wp.min_qty}
+                                                        type="text"
+                                                        value={formatNumberInput(wp.min_qty)}
                                                         onChange={(e) => {
                                                             const newWholesale = [...data.wholesale_prices];
-                                                            newWholesale[index].min_qty = parseInt(e.target.value) || 2;
+                                                            newWholesale[index].min_qty = parseNumberInput(e.target.value) || 2;
                                                             setData('wholesale_prices', newWholesale);
                                                         }}
                                                     />
@@ -190,13 +189,11 @@ export default function ProductCreate() {
                                                 <div className="space-y-2 flex-1">
                                                     <Label>Harga Grosir</Label>
                                                     <Input
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.01"
-                                                        value={wp.price}
+                                                        type="text"
+                                                        value={formatNumberInput(wp.price)}
                                                         onChange={(e) => {
                                                             const newWholesale = [...data.wholesale_prices];
-                                                            newWholesale[index].price = parseFloat(e.target.value) || 0;
+                                                            newWholesale[index].price = parseNumberInput(e.target.value) || 0;
                                                             setData('wholesale_prices', newWholesale);
                                                         }}
                                                     />
@@ -222,31 +219,19 @@ export default function ProductCreate() {
                             <div className="grid gap-4 md:grid-cols-3 pt-4 border-t border-border/50">
                                 <div className="space-y-2">
                                     <Label htmlFor="min_stock">Stok Minimum *</Label>
-                                    <Input
-                                        id="min_stock"
-                                        type="number"
-                                        value={data.min_stock}
-                                        onChange={(e) => setData('min_stock', parseInt(e.target.value))}
+                                    <Input id="min_stock" type="text" value={formatNumberInput(data.min_stock)} onChange={(e) => setData('min_stock', parseNumberInput(e.target.value))}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="max_stock">Stok Maksimum *</Label>
-                                    <Input
-                                        id="max_stock"
-                                        type="number"
-                                        value={data.max_stock}
-                                        onChange={(e) => setData('max_stock', parseInt(e.target.value))}
+                                    <Input id="max_stock" type="text" value={formatNumberInput(data.max_stock)} onChange={(e) => setData('max_stock', parseNumberInput(e.target.value))}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="reorder_point">Batas Restok *</Label>
-                                    <Input
-                                        id="reorder_point"
-                                        type="number"
-                                        value={data.reorder_point}
-                                        onChange={(e) => setData('reorder_point', parseInt(e.target.value))}
+                                    <Input id="reorder_point" type="text" value={formatNumberInput(data.reorder_point)} onChange={(e) => setData('reorder_point', parseNumberInput(e.target.value))}
                                     />
                                 </div>
                             </div>
@@ -254,11 +239,7 @@ export default function ProductCreate() {
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="current_stock">Stok Saat Ini *</Label>
-                                    <Input
-                                        id="current_stock"
-                                        type="number"
-                                        value={data.current_stock}
-                                        onChange={(e) => setData('current_stock', parseInt(e.target.value))}
+                                    <Input id="current_stock" type="text" value={formatNumberInput(data.current_stock)} onChange={(e) => setData('current_stock', parseNumberInput(e.target.value))}
                                     />
                                 </div>
 

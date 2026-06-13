@@ -5,6 +5,16 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 
+
+    const formatNumberInput = (val: number | string) => {
+        if (val === null || val === undefined || val === '') return '';
+        const num = Number(val.toString().replace(/\D/g, ''));
+        return num === 0 && val.toString() !== '0' ? '' : num.toLocaleString('id-ID');
+    };
+    const parseNumberInput = (val: string) => {
+        return Number(val.replace(/\D/g, '')) || 0;
+    };
+
 export default function StockAdjustment() {
     const { props } = usePage();
     const { product } = props as any;

@@ -541,7 +541,7 @@ export default function POSIndex() {
                         )}
                     </div>
 
-                    <div className="border-t border-border bg-card p-4 space-y-4 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.3)] relative">
+                    <div className="border-t border-border bg-card p-3 space-y-3 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.3)] relative">
                         <div className="space-y-2">
                             <div className="flex justify-between text-xs text-muted-foreground">
                                 <span>Subtotal</span>
@@ -578,7 +578,7 @@ export default function POSIndex() {
                             </div>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                             <div className="space-y-1">
                                 <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Pelanggan</Label>
                                 <Select value={selectedCustomer || 'walk-in'} onValueChange={(value) => setSelectedCustomer(value === 'walk-in' ? '' : value)}>
@@ -598,7 +598,7 @@ export default function POSIndex() {
 
                             <div className="space-y-1">
                                 <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Metode Pembayaran</Label>
-                                <div className="grid grid-cols-4 gap-1.5">
+                                <div className="grid grid-cols-5 gap-1">
                                     {[
                                         { id: 'cash', icon: DollarSign, label: 'Tunai' },
                                         { id: 'card', icon: CreditCard, label: 'Kartu' },
@@ -613,7 +613,7 @@ export default function POSIndex() {
                                                 key={method.id}
                                                 type="button"
                                                 variant={isActive ? 'default' : 'outline'}
-                                                className={`h-12 flex flex-col items-center justify-center gap-1 transition-all duration-200 ${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-card shadow-sm' : 'hover:bg-muted border-border/60'}`}
+                                                className={`h-10 flex flex-col items-center justify-center gap-1 transition-all duration-200 ${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-card shadow-sm' : 'hover:bg-muted border-border/60'}`}
                                                 onClick={() => setPaymentMethod(method.id)}
                                             >
                                                 <Icon className={`h-4 w-4 ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
@@ -639,7 +639,7 @@ export default function POSIndex() {
                                                 value={cashAmount || ''}
                                                 onChange={(e) => setCashAmount(parseFloat(e.target.value) || 0)}
                                                 placeholder="0"
-                                                className="pl-9 h-10 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
+                                                className="pl-9 h-9 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
                                             />
                                         </div>
                                     </div>
@@ -656,7 +656,7 @@ export default function POSIndex() {
                                                 value={transferAmount || ''}
                                                 onChange={(e) => setTransferAmount(parseFloat(e.target.value) || 0)}
                                                 placeholder="0"
-                                                className="pl-9 h-10 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
+                                                className="pl-9 h-9 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
                                             />
                                         </div>
                                     </div>
@@ -684,7 +684,7 @@ export default function POSIndex() {
                                             value={paidAmount || ''}
                                             onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)}
                                             placeholder="0"
-                                            className="pl-9 h-10 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
+                                            className="pl-9 h-9 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
                                         />
                                     </div>
                                     <Button
@@ -716,7 +716,7 @@ export default function POSIndex() {
                         <Button
                             onClick={handleProcessSale}
                             disabled={cart.length === 0 || calculatedPaidAmount < totalAmount}
-                            className="w-full h-14 text-lg font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-95 disabled:hover:scale-100 disabled:opacity-50 mt-2"
+                            className="w-full h-11 text-base font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-95 disabled:hover:scale-100 disabled:opacity-50 mt-1"
                         >
                             Selesaikan Pesanan (Rp {formatIDR(totalAmount)})
                         </Button>

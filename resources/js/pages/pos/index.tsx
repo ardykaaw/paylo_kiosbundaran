@@ -747,14 +747,14 @@ export default function POSIndex() {
                         className="max-w-md bg-transparent border-none shadow-none print:shadow-none print:bg-white print:max-w-full print:top-0 print:left-0 print:translate-x-0 print:translate-y-0 print:p-0 print:m-0 print:border-none print:absolute"
                     >
                         {lastSale && (
-                            <div className="bg-white print:text-black p-6 rounded-lg shadow-sm w-full max-w-sm mx-auto font-sans print-area print:p-0 max-h-[75vh] overflow-y-auto print:max-h-none print:overflow-visible">
+                            <div className="bg-white print:text-black p-6 rounded-lg shadow-sm w-full max-w-sm mx-auto font-sans print-area print:p-0 max-h-[75vh] overflow-y-auto print:max-h-none print:overflow-visible print:w-[58mm] print:max-w-[58mm] print:mx-0">
                                 <DialogHeader className="sr-only">
                                     <DialogTitle>Receipt</DialogTitle>
                                 </DialogHeader>
 
-                                <div className="font-mono text-xs text-black pb-4">
+                                <div className="font-mono text-[10px] sm:text-xs print:text-[10px] leading-tight text-black pb-4 print:w-full">
                                     {/* Header */}
-                                    <div className="text-center font-bold text-sm mb-2 uppercase">
+                                    <div className="text-center font-bold text-[12px] sm:text-sm print:text-[12px] mb-2 uppercase leading-tight">
                                         {auth.user.store_name || branch?.name || 'TOKO FADILLAH'}
                                     </div>
                                     <div className="mb-2">
@@ -781,10 +781,10 @@ export default function POSIndex() {
                                     <div className="mb-2">
                                         {lastSale.items.map((item: any) => (
                                             <div key={item.id} className="mb-1">
-                                                <p>{item.product.name}</p>
-                                                <div className="flex justify-between">
-                                                    <span>{formatIDR(item.unit_price)} x {item.quantity} {item.product.unit || 'PCS'}x =</span>
-                                                    <span>{formatIDR(item.total)}</span>
+                                                <p className="leading-tight">{item.product.name}</p>
+                                                <div className="flex justify-between items-start">
+                                                    <span className="leading-tight pr-1">{formatIDR(item.unit_price)} x{item.quantity} {item.product.unit || 'PCS'} =</span>
+                                                    <span className="whitespace-nowrap leading-tight">{formatIDR(item.total)}</span>
                                                 </div>
                                             </div>
                                         ))}

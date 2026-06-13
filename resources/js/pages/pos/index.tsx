@@ -360,7 +360,10 @@ export default function POSIndex() {
                                     <SelectItem value="all">Semua Kategori</SelectItem>
                                     {categories.map((cat: any) => (
                                         <SelectItem key={cat.id} value={cat.id}>
-                                            {cat.name}
+                                            <div className="flex items-center gap-2">
+                                                {cat.color && <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: cat.color }} />}
+                                                {cat.name}
+                                            </div>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -385,13 +388,14 @@ export default function POSIndex() {
                                     const isLowStock = !isOutOfStock && product.current_stock <= (product.reorder_point || 0);
 
                                     return (
-                                        <Card
-                                            key={product.id}
-                                            className={`group overflow-hidden shadow-sm transition-all duration-200 ${
-                                                isOutOfStock ? 'opacity-60 cursor-not-allowed bg-muted/30 grayscale-[50%] border-border/50' : 
-                                                isLowStock ? 'cursor-pointer border-destructive/50 hover:border-destructive hover:shadow-lg' :
-                                                'cursor-pointer border-border/50 hover:border-primary/50 hover:shadow-lg'
-                                            }`}
+                                            <Card
+                                                key={product.id}
+                                                className={`group overflow-hidden shadow-sm transition-all duration-200 ${
+                                                    isOutOfStock ? 'opacity-60 cursor-not-allowed bg-muted/30 grayscale-[50%] border-border/50' : 
+                                                    isLowStock ? 'cursor-pointer border-destructive/50 hover:border-destructive hover:shadow-lg' :
+                                                    'cursor-pointer border-border/50 hover:border-primary/50 hover:shadow-lg'
+                                                }`}
+                                                style={{ borderTopWidth: product.category?.color ? '4px' : undefined, borderTopColor: product.category?.color || undefined }}
                                             onClick={() => {
                                                 if (isOutOfStock) {
                                                     toast.error('Stok produk habis!');
@@ -428,7 +432,10 @@ export default function POSIndex() {
                                                     isOutOfStock ? 'text-muted-foreground' : 
                                                     isLowStock ? 'text-destructive' : ''
                                                 }`} title={product.name}>{product.name}</h3>
-                                                <p className="text-[10px] text-muted-foreground truncate">{product.sku}</p>
+                                                <div className="flex items-center gap-1.5">
+                                                    {product.category?.color && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: product.category.color }} />}
+                                                    <p className="text-[10px] text-muted-foreground truncate">{product.category?.name || product.sku}</p>
+                                                </div>
                                                 <div className="flex items-center justify-between pt-1">
                                                     <p className={`text-sm font-bold ${
                                                         isOutOfStock ? 'text-muted-foreground' : 

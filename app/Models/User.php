@@ -16,7 +16,7 @@ use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'store_name', 'email', 'password', 'phone', 'avatar_path', 'status', 'branch_id'])]
+#[Fillable(['tenant_id', 'name', 'store_name', 'email', 'password', 'phone', 'avatar_path', 'status', 'branch_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {

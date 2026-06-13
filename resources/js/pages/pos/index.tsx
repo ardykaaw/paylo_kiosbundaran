@@ -717,7 +717,9 @@ export default function POSIndex() {
                 </div>
 
                 {/* Receipt Dialog */}
-                <Dialog open={showReceipt} onOpenChange={setShowReceipt}>
+                <Dialog open={showReceipt} onOpenChange={(open) => {
+                    if (!open) handleNewSale();
+                }}>
                     <DialogContent 
                         onInteractOutside={(e) => e.preventDefault()}
                         className="max-w-md bg-transparent border-none shadow-none print:shadow-none print:bg-white print:max-w-full print:top-0 print:left-0 print:translate-x-0 print:translate-y-0 print:p-0 print:m-0 print:border-none print:absolute"

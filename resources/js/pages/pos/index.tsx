@@ -758,7 +758,7 @@ export default function POSIndex() {
                                         {auth.user.store_name || branch?.name || 'TOKO FADILLAH'}
                                     </div>
                                     <div className="mb-2">
-                                        <p>JL. SAMRATULANGI (Bundaran Mandonga)</p>
+                                        <p>JL. SAMRATULANGI (Bundaran Mandonga), Kendari</p>
                                         <p>Telp: 082236013446</p>
                                     </div>
 

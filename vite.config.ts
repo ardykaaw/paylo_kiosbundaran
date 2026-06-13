@@ -17,6 +17,7 @@ export default defineConfig({
             manifest: {
                 name: 'Paylo',
                 short_name: 'Paylo',
+                start_url: '/',
                 description: 'Aplikasi Kasir Paylo',
                 theme_color: '#ffffff',
                 background_color: '#ffffff',

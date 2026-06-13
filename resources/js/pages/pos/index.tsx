@@ -783,7 +783,7 @@ export default function POSIndex() {
                                             <div key={item.id} className="mb-1">
                                                 <p className="leading-tight">{item.product.name}</p>
                                                 <div className="flex justify-between items-start">
-                                                    <span className="leading-tight pr-1">{formatIDR(item.unit_price)} x{item.quantity} {item.product.unit || 'PCS'} =</span>
+                                                    <span className="leading-tight pr-1">{formatIDR(item.unit_price)} x{Number(item.quantity)} {item.product.unit || 'PCS'} =</span>
                                                     <span className="whitespace-nowrap leading-tight">{formatIDR(item.total)}</span>
                                                 </div>
                                             </div>

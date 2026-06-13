@@ -457,14 +457,29 @@ export default function POSIndex() {
 
                 {/* Right Panel - Cart */}
                 <div className="w-[420px] flex flex-col bg-card border-l border-border shadow-2xl z-10">
-                    <div className="p-5 border-b border-border bg-card/80 backdrop-blur-sm">
-                        <h2 className="text-xl font-bold flex items-center gap-2">
-                            <ShoppingCart className="h-5 w-5 text-primary" />
-                            Pesanan Saat Ini
-                            <span className="ml-auto bg-primary/10 text-primary font-bold text-xs px-3 py-1.5 rounded-full">
-                                {cart.length} {cart.length === 1 ? 'item' : 'item'}
+                    <div className="p-3 border-b border-border bg-card/80 backdrop-blur-sm space-y-2">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-bold flex items-center gap-1.5">
+                                <ShoppingCart className="h-4 w-4 text-primary" />
+                                Pesanan Saat Ini
+                            </h2>
+                            <span className="bg-primary/10 text-primary font-bold text-[10px] px-2 py-0.5 rounded-full">
+                                {cart.length} item
                             </span>
-                        </h2>
+                        </div>
+                        <Select value={selectedCustomer || 'walk-in'} onValueChange={(value) => setSelectedCustomer(value === 'walk-in' ? '' : value)}>
+                            <SelectTrigger className="h-7 w-full text-xs">
+                                <SelectValue placeholder="Walk-in Customer" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="walk-in">Pelanggan Langsung</SelectItem>
+                                {customers.map((customer) => (
+                                    <SelectItem key={customer.id} value={customer.id}>
+                                        {customer.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="flex-1 overflow-auto p-3 space-y-2 bg-muted/10">
@@ -541,60 +556,31 @@ export default function POSIndex() {
                         )}
                     </div>
 
-                    <div className="border-t border-border bg-card p-3 space-y-3 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.3)] relative">
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>Subtotal</span>
-                                <span className="font-medium text-foreground">Rp {formatIDR(subtotal)}</span>
-                            </div>
-                            {totalDiscount > 0 && (
-                                <div className="flex justify-between text-xs text-destructive">
-                                    <span>Discount</span>
-                                    <span className="font-medium">-Rp {formatIDR(totalDiscount)}</span>
-                                </div>
-                            )}
-                            {totalTax > 0 && (
-                                <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>Tax</span>
-                                    <span className="font-medium text-foreground">Rp {formatIDR(totalTax)}</span>
-                                </div>
-                            )}
-                            <div className="flex justify-between items-center text-xs text-muted-foreground pt-1 border-t border-border border-dashed">
-                                <span>Biaya Tambahan</span>
-                                <div className="relative w-24">
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        value={extraCharge === 0 ? '' : extraCharge}
-                                        onChange={(e) => setExtraCharge(parseFloat(e.target.value) || 0)}
-                                        placeholder="0"
-                                        className="h-6 text-right text-xs bg-transparent border-border/50 pr-1 pl-1"
-                                    />
+                    <div className="border-t border-border bg-card p-2 space-y-2 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.3)] relative">
+                        <div className="space-y-1">
+                            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+                                <div className="flex gap-2">
+                                    <span>Sub: <span className="text-foreground">Rp {formatIDR(subtotal)}</span></span>
+                                    {totalDiscount > 0 && <span className="text-destructive">Disc: -Rp {formatIDR(totalDiscount)}</span>}
+                                    {totalTax > 0 && <span>Tax: Rp {formatIDR(totalTax)}</span>}
                                 </div>
                             </div>
-                            <div className="flex justify-between items-end pt-2 mt-2 border-t border-border border-dashed">
-                                <span className="text-sm font-medium">Total Harga</span>
-                                <span className="text-xl font-black text-primary tracking-tight">Rp {formatIDR(totalAmount)}</span>
+                            <div className="flex justify-between items-center pt-1 border-t border-border border-dashed">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px] text-muted-foreground">Biaya Tambahan:</span>
+                                    <div className="relative w-16">
+                                        <Input type="number" min="0" value={extraCharge === 0 ? '' : extraCharge} onChange={(e) => setExtraCharge(parseFloat(e.target.value) || 0)} placeholder="0" className="h-6 text-right text-[10px] bg-transparent border-border/50 pr-1 pl-1" />
+                                    </div>
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <span className="text-[11px] font-medium text-muted-foreground mb-0.5">Total</span>
+                                    <span className="text-lg font-black text-primary tracking-tight leading-none">Rp {formatIDR(totalAmount)}</span>
+                                </div>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <div className="space-y-1">
-                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Pelanggan</Label>
-                                <Select value={selectedCustomer || 'walk-in'} onValueChange={(value) => setSelectedCustomer(value === 'walk-in' ? '' : value)}>
-                                    <SelectTrigger className="h-9 w-full">
-                                        <SelectValue placeholder="Walk-in Customer" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="walk-in">Pelanggan Langsung</SelectItem>
-                                        {customers.map((customer: any) => (
-                                            <SelectItem key={customer.id} value={customer.id}>
-                                                {customer.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            
 
                             <div className="space-y-1">
                                 <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Metode Pembayaran</Label>
@@ -613,10 +599,10 @@ export default function POSIndex() {
                                                 key={method.id}
                                                 type="button"
                                                 variant={isActive ? 'default' : 'outline'}
-                                                className={`h-10 flex flex-col items-center justify-center gap-1 transition-all duration-200 ${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-card shadow-sm' : 'hover:bg-muted border-border/60'}`}
+                                                className={`h-8 flex flex-row items-center justify-center gap-1 transition-all duration-200 ${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-card shadow-sm' : 'hover:bg-muted border-border/60'}`}
                                                 onClick={() => setPaymentMethod(method.id)}
                                             >
-                                                <Icon className={`h-4 w-4 ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
+                                                <Icon className={`h-3 w-3 ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
                                                 <span className="text-[9px] font-bold tracking-wide">{method.label}</span>
                                             </Button>
                                         )
@@ -671,43 +657,31 @@ export default function POSIndex() {
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="space-y-1">
-                                    <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Jumlah Dibayar</Label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex-1 relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
                                             <span className="text-muted-foreground font-bold group-focus-within:text-primary transition-colors text-xs">Rp</span>
                                         </div>
                                         <Input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={paidAmount || ''}
-                                            onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)}
-                                            placeholder="0"
-                                            className="pl-9 h-9 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
+                                            type="number" min="0" step="0.01" value={paidAmount || ''} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0"
+                                            className="pl-8 h-8 text-sm font-bold bg-background/50 focus-visible:ring-primary shadow-inner"
                                         />
                                     </div>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full text-xs"
-                                        onClick={() => setPaidAmount(totalAmount)}
-                                    >
-                                        Bayar Jumlah Tepat (Rp {formatIDR(totalAmount)})
+                                    <Button type="button" variant="outline" className="h-8 text-[10px] px-2" onClick={() => setPaidAmount(totalAmount)}>
+                                        Uang Pas
                                     </Button>
                                 </div>
                             )}
                         </div>
 
                         {calculatedPaidAmount > 0 && changeAmount >= 0 && (
-                            <div className="flex justify-between items-center p-2 bg-green-500/10 rounded-md border border-green-500/20">
+                            <div className="flex justify-between items-center p-1.5 px-2 bg-green-500/10 rounded-md border border-green-500/20">
                                 <span className="font-medium text-green-600 dark:text-green-400 text-xs">Kembalian</span>
                                 <span className="text-sm font-black text-green-600 dark:text-green-400">Rp {formatIDR(changeAmount)}</span>
                             </div>
                         )}
                         {calculatedPaidAmount > 0 && changeAmount < 0 && (
-                            <div className="flex justify-between items-center p-2 bg-destructive/10 rounded-md border border-destructive/20">
+                            <div className="flex justify-between items-center p-1.5 px-2 bg-destructive/10 rounded-md border border-destructive/20">
                                 <span className="font-medium text-destructive text-xs">Kurang</span>
                                 <span className="text-sm font-black text-destructive">Rp {formatIDR(Math.abs(changeAmount))}</span>
                             </div>
@@ -716,7 +690,7 @@ export default function POSIndex() {
                         <Button
                             onClick={handleProcessSale}
                             disabled={cart.length === 0 || calculatedPaidAmount < totalAmount}
-                            className="w-full h-11 text-base font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-95 disabled:hover:scale-100 disabled:opacity-50 mt-1"
+                            className="w-full h-10 text-sm font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-95 disabled:hover:scale-100 disabled:opacity-50 mt-1"
                         >
                             Selesaikan Pesanan (Rp {formatIDR(totalAmount)})
                         </Button>

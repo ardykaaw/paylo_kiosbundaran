@@ -145,15 +145,6 @@ export default function POSIndex() {
                         const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
                         currentUnitPrice = Number(sortedByPrice[0].price);
                         isWholesale = true;
-                    } else {
-                        const sortedWholesale = [...product.wholesale_prices].sort((a: any, b: any) => b.min_qty - a.min_qty);
-                        for (const wp of sortedWholesale) {
-                            if (item.quantity >= wp.min_qty) {
-                                currentUnitPrice = Number(wp.price);
-                                isWholesale = true;
-                                break;
-                            }
-                        }
                     }
                 }
 
@@ -206,15 +197,6 @@ export default function POSIndex() {
                     const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
                     price = Number(sortedByPrice[0].price);
                     isWholesale = true;
-                } else {
-                    const sortedWholesale = [...product.wholesale_prices].sort((a: any, b: any) => b.min_qty - a.min_qty);
-                    for (const wp of sortedWholesale) {
-                        if (overrideQuantity >= wp.min_qty) {
-                            price = Number(wp.price);
-                            isWholesale = true;
-                            break;
-                        }
-                    }
                 }
             }
 
@@ -268,15 +250,6 @@ export default function POSIndex() {
                             const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
                             basePrice = Number(sortedByPrice[0].price);
                             isWholesale = true;
-                        } else {
-                            const sortedWholesale = [...product.wholesale_prices].sort((a: any, b: any) => b.min_qty - a.min_qty);
-                            for (const wp of sortedWholesale) {
-                                if (quantity >= wp.min_qty) {
-                                    basePrice = Number(wp.price);
-                                    isWholesale = true;
-                                    break;
-                                }
-                            }
                         }
                     }
                     currentUnitPrice = basePrice;
@@ -328,6 +301,8 @@ export default function POSIndex() {
     const totalDiscount = cart.reduce((sum, item) => sum + (item.discount_amount || 0), 0);
     const totalTax = cart.reduce((sum, item) => sum + (item.tax_amount || 0), 0);
     const totalAmount = subtotal - totalDiscount + totalTax + (extraCharge || 0);
+
+    const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
 
     let calculatedPaidAmount = paidAmount;
     if (paymentMethod === 'split') {
@@ -613,7 +588,7 @@ export default function POSIndex() {
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-bold text-4xl leading-tight truncate">{item.product_name}</p>
                                                 <p className="text-2xl uppercase tracking-wider text-muted-foreground mt-0.5">{item.product_sku}</p>
-                                                {item.wholesale_info_string && (
+                                                {item.wholesale_info_string && isSpecialCustomer && (
                                                     <p className="text-sm text-green-600 dark:text-green-400 mt-0.5 font-medium leading-tight">Grosir: {item.wholesale_info_string}</p>
                                                 )}
                                                 {item.is_wholesale && (

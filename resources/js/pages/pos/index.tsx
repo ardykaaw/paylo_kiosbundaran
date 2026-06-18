@@ -23,6 +23,7 @@ interface CartItem {
     total: number;
     is_wholesale?: boolean;
     wholesale_info_string?: string;
+    wholesale_unit?: string;
 }
 
 export default function POSIndex() {
@@ -38,6 +39,8 @@ export default function POSIndex() {
     const [extraCharge, setExtraCharge] = useState(0);
     const [showReceipt, setShowReceipt] = useState(false);
     const [lastSale, setLastSale] = useState<any>(null);
+    const [isSaleSaved, setIsSaleSaved] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [search, setSearch] = useState(filters.search || '');
     const [selectedCategory, setSelectedCategory] = useState(filters.category || '');
     const [showPriceModal, setShowPriceModal] = useState(false);
@@ -139,16 +142,18 @@ export default function POSIndex() {
 
                 let currentUnitPrice = Number(product.selling_price) || 0;
                 let isWholesale = false;
+                let currentWholesaleUnit = '';
 
                 if (product.wholesale_prices && product.wholesale_prices.length > 0) {
                     if (isSpecialCustomer) {
                         const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
                         currentUnitPrice = Number(sortedByPrice[0].price);
+                        currentWholesaleUnit = sortedByPrice[0].unit || product.unit;
                         isWholesale = true;
                     }
                 }
 
-                if (item.unit_price === currentUnitPrice) return item;
+                if (item.unit_price === currentUnitPrice && item.is_wholesale === isWholesale && item.wholesale_unit === currentWholesaleUnit) return item;
 
                 const lineTotal = currentUnitPrice * item.quantity;
                 const discountAmount = lineTotal * (item.discount_percent / 100);
@@ -160,6 +165,7 @@ export default function POSIndex() {
                     ...item,
                     unit_price: currentUnitPrice,
                     is_wholesale: isWholesale,
+                    wholesale_unit: currentWholesaleUnit,
                     subtotal: lineTotal,
                     discount_amount: discountAmount,
                     tax_amount: taxAmount,
@@ -189,6 +195,7 @@ export default function POSIndex() {
         } else {
             let price = overridePrice || Number(product.selling_price) || 0;
             let isWholesale = false;
+            let currentWholesaleUnit = '';
 
             const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
 
@@ -196,6 +203,7 @@ export default function POSIndex() {
                 if (isSpecialCustomer) {
                     const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
                     price = Number(sortedByPrice[0].price);
+                    currentWholesaleUnit = sortedByPrice[0].unit || product.unit;
                     isWholesale = true;
                 }
             }
@@ -214,6 +222,7 @@ export default function POSIndex() {
                 total: price * overrideQuantity,
                 is_wholesale: isWholesale,
                 wholesale_info_string: wholesaleInfoString,
+                wholesale_unit: currentWholesaleUnit,
             };
             setCart([...cart, newItem]);
             setShowPriceModal(false);
@@ -238,10 +247,12 @@ export default function POSIndex() {
                 const product = products.find((p: any) => p.id === productId);
                 let currentUnitPrice = item.unit_price;
                 let isWholesale = item.is_wholesale || false;
+                let currentWholesaleUnit = item.wholesale_unit || '';
 
                 if (product) {
                     let basePrice = Number(product.selling_price) || 0;
                     isWholesale = false;
+                    currentWholesaleUnit = '';
 
                     const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
 
@@ -249,6 +260,7 @@ export default function POSIndex() {
                         if (isSpecialCustomer) {
                             const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
                             basePrice = Number(sortedByPrice[0].price);
+                            currentWholesaleUnit = sortedByPrice[0].unit || product.unit;
                             isWholesale = true;
                         }
                     }
@@ -266,6 +278,7 @@ export default function POSIndex() {
                     quantity,
                     unit_price: currentUnitPrice,
                     is_wholesale: isWholesale,
+                    wholesale_unit: currentWholesaleUnit,
                     subtotal: lineTotal,
                     discount_amount: discountAmount,
                     tax_amount: taxAmount,
@@ -320,7 +333,7 @@ export default function POSIndex() {
         });
     };
 
-    const handleProcessSale = async () => {
+    const handlePreviewReceipt = () => {
         if (cart.length === 0) {
             alert('Cart is empty');
             return;
@@ -330,6 +343,48 @@ export default function POSIndex() {
             alert('Insufficient payment amount');
             return;
         }
+
+        const previewSale = {
+            number: 'DRAFT',
+            created_at: new Date().toISOString(),
+            customer: customers.find(c => c.id === Number(selectedCustomer)) || null,
+            branch: branch,
+            items: cart.map((item, index) => ({
+                id: index,
+                product: { name: item.product_name, unit: item.wholesale_unit || 'PCS' },
+                unit_price: item.unit_price,
+                quantity: item.quantity,
+                notes: item.wholesale_unit || '',
+                total: item.total
+            })),
+            subtotal,
+            extra_charge_amount: extraCharge,
+            discount_amount: totalDiscount,
+            tax_amount: totalTax,
+            total_amount: totalAmount,
+            payment_method: paymentMethod,
+            cash_amount: paymentMethod === 'split' ? cashAmount : (paymentMethod === 'cash' ? calculatedPaidAmount : 0),
+            transfer_amount: paymentMethod === 'split' ? transferAmount : (paymentMethod === 'transfer' ? calculatedPaidAmount : 0),
+            paid_amount: calculatedPaidAmount,
+            change_amount: changeAmount
+        };
+
+        setLastSale(previewSale);
+        setShowReceipt(true);
+        setIsSaleSaved(false);
+    };
+
+    const handleFinalizeSale = async (action: 'new' | 'print') => {
+        if (isSaleSaved) {
+            if (action === 'print') {
+                window.print();
+            } else {
+                handleResetCart();
+            }
+            return;
+        }
+
+        setIsProcessing(true);
 
         const saleData = {
             branch_id: branch?.id,
@@ -358,7 +413,7 @@ export default function POSIndex() {
                 tax_amount: item.tax_amount,
                 subtotal: item.subtotal,
                 total: item.total,
-                notes: '',
+                notes: item.wholesale_unit || '',
             })),
         };
 
@@ -378,13 +433,16 @@ export default function POSIndex() {
             if (response.ok && result.success) {
                 toast.success('Pesanan berhasil diselesaikan!');
                 setLastSale(result.sale);
-                setShowReceipt(true);
-                setCart([]);
-                setPaidAmount(0);
-                setCashAmount(0);
-                setTransferAmount(0);
-                setExtraCharge(0);
-                setSelectedCustomer('');
+                setIsSaleSaved(true);
+                
+                setTimeout(() => {
+                    if (action === 'print') {
+                        window.print();
+                    } else {
+                        handleResetCart();
+                    }
+                    setIsProcessing(false);
+                }, 150);
             } else {
                 let errorMsg = result.message || 'Gagal memproses pesanan';
                 if (result.errors) {
@@ -394,16 +452,29 @@ export default function POSIndex() {
                     }
                 }
                 toast.error(errorMsg);
+                setIsProcessing(false);
             }
         } catch (error: any) {
             toast.error('Error saat memproses pesanan: ' + (error.message || 'Gangguan jaringan'));
+            setIsProcessing(false);
         }
     };
 
-    const handleNewSale = () => {
+    const handleResetCart = () => {
         setShowReceipt(false);
         setLastSale(null);
-        router.reload();
+        setSearch('');
+        setCart([]);
+        setPaidAmount(0);
+        setCashAmount(0);
+        setTransferAmount(0);
+        setExtraCharge(0);
+        setSelectedCustomer('');
+        setIsSaleSaved(false);
+    };
+
+    const handleNewSale = () => {
+        handleResetCart();
     };
 
     return (
@@ -769,7 +840,7 @@ export default function POSIndex() {
                         )}
 
                         <Button
-                            onClick={handleProcessSale}
+                            onClick={handlePreviewReceipt}
                             disabled={cart.length === 0 || calculatedPaidAmount < totalAmount}
                             className="w-full h-14 text-xl font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-95 disabled:hover:scale-100 disabled:opacity-50 mt-1"
                         >
@@ -780,7 +851,11 @@ export default function POSIndex() {
 
                 {/* Receipt Dialog */}
                 <Dialog open={showReceipt} onOpenChange={(open) => {
-                    if (!open) handleNewSale();
+                    if (!open && isSaleSaved) {
+                        handleResetCart();
+                    } else {
+                        setShowReceipt(open);
+                    }
                 }}>
                     <DialogContent
                         onInteractOutside={(e) => e.preventDefault()}
@@ -823,7 +898,7 @@ export default function POSIndex() {
                                             <div key={item.id} className="mb-1">
                                                 <p className="leading-tight">{item.product.name}</p>
                                                 <div className="flex justify-between items-start">
-                                                    <span className="leading-tight pr-1">{formatIDR(item.unit_price)} x{Number(item.quantity)} {item.product.unit || 'PCS'} =</span>
+                                                    <span className="leading-tight pr-1">{formatIDR(item.unit_price)} x{Number(item.quantity)} {item.notes ? item.notes : (item.product.unit || 'PCS')} =</span>
                                                     <span className="whitespace-nowrap leading-tight">{formatIDR(item.total)}</span>
                                                 </div>
                                             </div>
@@ -903,12 +978,12 @@ export default function POSIndex() {
                                 </div>
 
                                 <div className="flex gap-3 pt-6 print:hidden">
-                                    <Button onClick={handleNewSale} className="flex-1" variant="default">
-                                        Penjualan Baru
+                                    <Button onClick={() => handleFinalizeSale('new')} className="flex-1" variant="default" disabled={isProcessing}>
+                                        {isProcessing ? 'Memproses...' : (isSaleSaved ? 'Selesai & Pesanan Baru' : 'Simpan & Pesanan Baru')}
                                     </Button>
-                                    <Button variant="outline" onClick={() => window.print()} className="flex-1 border-primary text-primary hover:bg-primary/5">
+                                    <Button variant="outline" onClick={() => handleFinalizeSale('print')} className="flex-1 border-primary text-primary hover:bg-primary/5" disabled={isProcessing}>
                                         <Printer className="mr-2 h-4 w-4" />
-                                        Cetak
+                                        {isProcessing ? 'Memproses...' : (isSaleSaved ? 'Cetak Ulang' : 'Simpan & Cetak')}
                                     </Button>
                                 </div>
                             </div>

@@ -17,7 +17,6 @@ class SaleRequest extends FormRequest
         return [
             'branch_id' => ['required', 'exists:branches,id'],
             'customer_id' => ['nullable', 'exists:customers,id'],
-            'number' => ['required', 'string', 'max:50', Rule::unique('sales')->where('tenant_id', auth()->user()?->tenant_id)],
             'date' => ['required', 'date'],
             'status' => ['required', 'in:draft,pending,paid,cancelled,returned'],
             'subtotal' => ['required', 'numeric', 'min:0'],

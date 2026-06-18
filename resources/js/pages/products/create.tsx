@@ -30,7 +30,7 @@ export default function ProductCreate() {
         unit: 'pcs',
         cost_price: 0,
         selling_price: 0,
-        wholesale_prices: [] as {min_qty: number, price: number}[],
+        wholesale_prices: [] as {min_qty: number, price: number, unit?: string}[],
         min_stock: 0,
         max_stock: 0,
         reorder_point: 0,
@@ -161,7 +161,7 @@ export default function ProductCreate() {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => {
-                                            const newWholesale = [...data.wholesale_prices, { min_qty: 2, price: 0 }];
+                                            const newWholesale = [...data.wholesale_prices, { min_qty: 2, price: 0, unit: data.unit }];
                                             setData('wholesale_prices', newWholesale);
                                         }}
                                     >
@@ -196,6 +196,18 @@ export default function ProductCreate() {
                                                             const newWholesale = [...data.wholesale_prices];
                                                             const val = e.target.value.replace(/\D/g, '');
                                                             newWholesale[index].price = val === '' ? '' : Number(val);
+                                                            setData('wholesale_prices', newWholesale);
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2 flex-1">
+                                                    <Label>Satuan</Label>
+                                                    <Input
+                                                        type="text"
+                                                        value={wp.unit ?? ''}
+                                                        onChange={(e) => {
+                                                            const newWholesale = [...data.wholesale_prices];
+                                                            newWholesale[index].unit = e.target.value;
                                                             setData('wholesale_prices', newWholesale);
                                                         }}
                                                     />

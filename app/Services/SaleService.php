@@ -20,7 +20,7 @@ class SaleService
                 'tenant_id' => auth()->user()->tenant_id,
                 'branch_id' => $data['branch_id'],
                 'customer_id' => $data['customer_id'] ?? null,
-                'number' => $data['number'],
+                'number' => $this->generateSaleNumber(),
                 'date' => $data['date'],
                 'status' => $data['status'],
                 'subtotal' => $data['subtotal'],
@@ -81,7 +81,7 @@ class SaleService
                 ]);
             }
 
-            return $sale->load('items.product');
+            return $sale->load(['items.product', 'customer', 'branch', 'createdBy']);
         });
     }
 

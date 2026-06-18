@@ -30,7 +30,7 @@ export default function ProductEdit() {
         unit: product.unit,
         cost_price: Math.floor(Number(product.cost_price)) || 0,
         selling_price: Math.floor(Number(product.selling_price)) || 0,
-        wholesale_prices: product.wholesale_prices ? product.wholesale_prices.map((wp: any) => ({...wp, price: Math.floor(Number(wp.price)) || 0, min_qty: Math.floor(Number(wp.min_qty)) || 0})) : [],
+        wholesale_prices: product.wholesale_prices ? product.wholesale_prices.map((wp: any) => ({...wp, price: Math.floor(Number(wp.price)) || 0, min_qty: Math.floor(Number(wp.min_qty)) || 0, unit: wp.unit || product.unit})) : [],
         min_stock: Math.floor(Number(product.min_stock)) || 0,
         max_stock: Math.floor(Number(product.max_stock)) || 0,
         reorder_point: Math.floor(Number(product.reorder_point)) || 0,
@@ -161,7 +161,7 @@ export default function ProductEdit() {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => {
-                                            const newWholesale = [...data.wholesale_prices, { min_qty: 2, price: 0 }];
+                                            const newWholesale = [...data.wholesale_prices, { min_qty: 2, price: 0, unit: data.unit }];
                                             setData('wholesale_prices', newWholesale);
                                         }}
                                     >
@@ -196,6 +196,18 @@ export default function ProductEdit() {
                                                             const newWholesale = [...data.wholesale_prices];
                                                             const val = e.target.value.replace(/\D/g, '');
                                                             newWholesale[index].price = val === '' ? '' : Number(val);
+                                                            setData('wholesale_prices', newWholesale);
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2 flex-1">
+                                                    <Label>Satuan</Label>
+                                                    <Input
+                                                        type="text"
+                                                        value={wp.unit ?? ''}
+                                                        onChange={(e) => {
+                                                            const newWholesale = [...data.wholesale_prices];
+                                                            newWholesale[index].unit = e.target.value;
                                                             setData('wholesale_prices', newWholesale);
                                                         }}
                                                     />

@@ -28,6 +28,7 @@ class ProductRequest extends FormRequest
             'wholesale_prices' => ['nullable', 'array'],
             'wholesale_prices.*.min_qty' => ['required_with:wholesale_prices', 'integer', 'min:2'],
             'wholesale_prices.*.price' => ['required_with:wholesale_prices', 'numeric', 'min:0'],
+            'wholesale_prices.*.unit' => ['nullable', 'string', 'max:20'],
             'min_stock' => ['required', 'integer', 'min:0'],
             'max_stock' => ['required', 'integer', 'min:0'],
             'reorder_point' => ['required', 'integer', 'min:0'],

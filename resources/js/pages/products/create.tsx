@@ -181,7 +181,8 @@ export default function ProductCreate() {
                                                         value={formatNumberInput(wp.min_qty)}
                                                         onChange={(e) => {
                                                             const newWholesale = [...data.wholesale_prices];
-                                                            newWholesale[index].min_qty = parseNumberInput(e.target.value) || 2;
+                                                            const val = e.target.value.replace(/\\D/g, '');
+                                                            newWholesale[index].min_qty = val === '' ? '' : Number(val);
                                                             setData('wholesale_prices', newWholesale);
                                                         }}
                                                     />
@@ -193,7 +194,8 @@ export default function ProductCreate() {
                                                         value={formatNumberInput(wp.price)}
                                                         onChange={(e) => {
                                                             const newWholesale = [...data.wholesale_prices];
-                                                            newWholesale[index].price = parseNumberInput(e.target.value) || 0;
+                                                            const val = e.target.value.replace(/\\D/g, '');
+                                                            newWholesale[index].price = val === '' ? '' : Number(val);
                                                             setData('wholesale_prices', newWholesale);
                                                         }}
                                                     />

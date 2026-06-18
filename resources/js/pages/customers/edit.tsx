@@ -20,6 +20,7 @@ export default function CustomerEdit() {
         credit_limit: customer.credit_limit,
         is_active: customer.is_active,
         is_walk_in: customer.is_walk_in,
+        is_special_wholesale: customer.is_special_wholesale || false,
         notes: customer.notes || '',
     });
 
@@ -156,6 +157,15 @@ export default function CustomerEdit() {
                                         onCheckedChange={(checked) => setData('is_walk_in', checked as boolean)}
                                     />
                                     <Label htmlFor="is_walk_in">Walk-in Customer</Label>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id="is_special_wholesale"
+                                        checked={data.is_special_wholesale}
+                                        onCheckedChange={(checked) => setData('is_special_wholesale', checked as boolean)}
+                                    />
+                                    <Label htmlFor="is_special_wholesale">Customer Grosir / Spesial</Label>
                                 </div>
                             </div>
 

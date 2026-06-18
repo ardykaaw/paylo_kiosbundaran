@@ -20,6 +20,7 @@ class Customer extends Model
         'current_balance',
         'is_active',
         'is_walk_in',
+        'is_special_wholesale',
         'notes',
     ];
 
@@ -28,6 +29,7 @@ class Customer extends Model
         'current_balance' => 'decimal:2',
         'is_active' => 'boolean',
         'is_walk_in' => 'boolean',
+        'is_special_wholesale' => 'boolean',
     ];
 
     public function tenant(): BelongsTo

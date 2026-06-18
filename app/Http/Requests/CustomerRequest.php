@@ -26,6 +26,7 @@ class CustomerRequest extends FormRequest
             'credit_limit' => ['required', 'numeric', 'min:0'],
             'is_active' => ['boolean'],
             'is_walk_in' => ['boolean'],
+            'is_special_wholesale' => ['boolean'],
             'notes' => ['nullable', 'string'],
         ];
     }

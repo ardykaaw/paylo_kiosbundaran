@@ -28,13 +28,13 @@ export default function ProductEdit() {
         name: product.name,
         description: product.description || '',
         unit: product.unit,
-        cost_price: product.cost_price,
-        selling_price: product.selling_price,
-        wholesale_prices: product.wholesale_prices || [],
-        min_stock: product.min_stock,
-        max_stock: product.max_stock,
-        reorder_point: product.reorder_point,
-        current_stock: product.current_stock,
+        cost_price: Math.floor(Number(product.cost_price)) || 0,
+        selling_price: Math.floor(Number(product.selling_price)) || 0,
+        wholesale_prices: product.wholesale_prices ? product.wholesale_prices.map((wp: any) => ({...wp, price: Math.floor(Number(wp.price)) || 0, min_qty: Math.floor(Number(wp.min_qty)) || 0})) : [],
+        min_stock: Math.floor(Number(product.min_stock)) || 0,
+        max_stock: Math.floor(Number(product.max_stock)) || 0,
+        reorder_point: Math.floor(Number(product.reorder_point)) || 0,
+        current_stock: Math.floor(Number(product.current_stock)) || 0,
         image_path: product.image_path || '',
         is_active: product.is_active,
         is_track_stock: product.is_track_stock,
@@ -181,7 +181,8 @@ export default function ProductEdit() {
                                                         value={formatNumberInput(wp.min_qty)}
                                                         onChange={(e) => {
                                                             const newWholesale = [...data.wholesale_prices];
-                                                            newWholesale[index].min_qty = parseNumberInput(e.target.value) || 2;
+                                                            const val = e.target.value.replace(/\\D/g, '');
+                                                            newWholesale[index].min_qty = val === '' ? '' : Number(val);
                                                             setData('wholesale_prices', newWholesale);
                                                         }}
                                                     />
@@ -193,7 +194,8 @@ export default function ProductEdit() {
                                                         value={formatNumberInput(wp.price)}
                                                         onChange={(e) => {
                                                             const newWholesale = [...data.wholesale_prices];
-                                                            newWholesale[index].price = parseNumberInput(e.target.value) || 0;
+                                                            const val = e.target.value.replace(/\\D/g, '');
+                                                            newWholesale[index].price = val === '' ? '' : Number(val);
                                                             setData('wholesale_prices', newWholesale);
                                                         }}
                                                     />

@@ -17,6 +17,7 @@ export default function CustomerCreate() {
         credit_limit: 0,
         is_active: true,
         is_walk_in: false,
+        is_special_wholesale: false,
         notes: '',
     });
 
@@ -153,6 +154,15 @@ export default function CustomerCreate() {
                                         onCheckedChange={(checked) => setData('is_walk_in', checked as boolean)}
                                     />
                                     <Label htmlFor="is_walk_in">Walk-in Customer</Label>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id="is_special_wholesale"
+                                        checked={data.is_special_wholesale}
+                                        onCheckedChange={(checked) => setData('is_special_wholesale', checked as boolean)}
+                                    />
+                                    <Label htmlFor="is_special_wholesale">Customer Grosir / Spesial</Label>
                                 </div>
                             </div>
 

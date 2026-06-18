@@ -129,6 +129,55 @@ export default function POSIndex() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [products, cart]);
 
+    useEffect(() => {
+        if (cart.length > 0) {
+            const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
+            
+            setCart(prevCart => prevCart.map(item => {
+                const product = products.find((p: any) => p.id === item.product_id);
+                if (!product) return item;
+
+                let currentUnitPrice = Number(product.selling_price) || 0;
+                let isWholesale = false;
+
+                if (product.wholesale_prices && product.wholesale_prices.length > 0) {
+                    if (isSpecialCustomer) {
+                        const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
+                        currentUnitPrice = Number(sortedByPrice[0].price);
+                        isWholesale = true;
+                    } else {
+                        const sortedWholesale = [...product.wholesale_prices].sort((a: any, b: any) => b.min_qty - a.min_qty);
+                        for (const wp of sortedWholesale) {
+                            if (item.quantity >= wp.min_qty) {
+                                currentUnitPrice = Number(wp.price);
+                                isWholesale = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (item.unit_price === currentUnitPrice) return item;
+
+                const lineTotal = currentUnitPrice * item.quantity;
+                const discountAmount = lineTotal * (item.discount_percent / 100);
+                const afterDiscount = lineTotal - discountAmount;
+                const taxAmount = afterDiscount * (item.tax_percent / 100);
+                const itemTotal = afterDiscount + taxAmount;
+
+                return {
+                    ...item,
+                    unit_price: currentUnitPrice,
+                    is_wholesale: isWholesale,
+                    subtotal: lineTotal,
+                    discount_amount: discountAmount,
+                    tax_amount: taxAmount,
+                    total: itemTotal,
+                };
+            }));
+        }
+    }, [selectedCustomer]);
+
     const addToCart = (product: any, overridePrice: number | null = null, overrideQuantity: number = 1) => {
         if (!overridePrice && product.prices && product.prices.length > 0) {
             setSelectedProductForPrice(product);
@@ -150,13 +199,21 @@ export default function POSIndex() {
             let price = overridePrice || Number(product.selling_price) || 0;
             let isWholesale = false;
 
+            const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
+
             if (!overridePrice && product.wholesale_prices && product.wholesale_prices.length > 0) {
-                const sortedWholesale = [...product.wholesale_prices].sort((a, b) => b.min_qty - a.min_qty);
-                for (const wp of sortedWholesale) {
-                    if (overrideQuantity >= wp.min_qty) {
-                        price = Number(wp.price);
-                        isWholesale = true;
-                        break;
+                if (isSpecialCustomer) {
+                    const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
+                    price = Number(sortedByPrice[0].price);
+                    isWholesale = true;
+                } else {
+                    const sortedWholesale = [...product.wholesale_prices].sort((a: any, b: any) => b.min_qty - a.min_qty);
+                    for (const wp of sortedWholesale) {
+                        if (overrideQuantity >= wp.min_qty) {
+                            price = Number(wp.price);
+                            isWholesale = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -204,13 +261,21 @@ export default function POSIndex() {
                     let basePrice = Number(product.selling_price) || 0;
                     isWholesale = false;
 
+                    const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
+
                     if (product.wholesale_prices && product.wholesale_prices.length > 0) {
-                        const sortedWholesale = [...product.wholesale_prices].sort((a, b) => b.min_qty - a.min_qty);
-                        for (const wp of sortedWholesale) {
-                            if (quantity >= wp.min_qty) {
-                                basePrice = Number(wp.price);
-                                isWholesale = true;
-                                break;
+                        if (isSpecialCustomer) {
+                            const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
+                            basePrice = Number(sortedByPrice[0].price);
+                            isWholesale = true;
+                        } else {
+                            const sortedWholesale = [...product.wholesale_prices].sort((a: any, b: any) => b.min_qty - a.min_qty);
+                            for (const wp of sortedWholesale) {
+                                if (quantity >= wp.min_qty) {
+                                    basePrice = Number(wp.price);
+                                    isWholesale = true;
+                                    break;
+                                }
                             }
                         }
                     }

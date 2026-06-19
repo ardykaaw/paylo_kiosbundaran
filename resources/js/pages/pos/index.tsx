@@ -135,7 +135,7 @@ export default function POSIndex() {
 
     useEffect(() => {
         if (cart.length > 0) {
-            const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
+            const isSpecialCustomer = customers.find((c: any) => String(c.id) === String(selectedCustomer))?.is_special_wholesale;
             
             setCart(prevCart => prevCart.map(item => {
                 const product = products.find((p: any) => p.id === item.product_id);
@@ -198,7 +198,7 @@ export default function POSIndex() {
             let isWholesale = false;
             let currentWholesaleUnit = '';
 
-            const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
+            const isSpecialCustomer = customers.find((c: any) => String(c.id) === String(selectedCustomer))?.is_special_wholesale;
 
             if (!overridePrice && product.wholesale_prices && product.wholesale_prices.length > 0) {
                 if (isSpecialCustomer) {
@@ -294,7 +294,7 @@ export default function POSIndex() {
                     isWholesale = false;
                     currentWholesaleUnit = '';
 
-                    const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
+                    const isSpecialCustomer = customers.find((c: any) => String(c.id) === String(selectedCustomer))?.is_special_wholesale;
 
                     if (product.wholesale_prices && product.wholesale_prices.length > 0) {
                         if (isSpecialCustomer && !item.disable_wholesale) {
@@ -355,7 +355,7 @@ export default function POSIndex() {
     const totalTax = cart.reduce((sum, item) => sum + (item.tax_amount || 0), 0);
     const totalAmount = subtotal - totalDiscount + totalTax + (extraCharge || 0);
 
-    const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
+    const isSpecialCustomer = customers.find((c: any) => String(c.id) === String(selectedCustomer))?.is_special_wholesale;
 
     let calculatedPaidAmount = paidAmount;
     if (paymentMethod === 'split') {

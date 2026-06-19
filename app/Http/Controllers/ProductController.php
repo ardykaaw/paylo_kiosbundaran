@@ -78,8 +78,10 @@ class ProductController extends Controller implements HasMiddleware
         $validated = $request->validated();
         
         if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('products', 'public');
-            $validated['image_path'] = '/storage/' . $path;
+            $file = $request->file('image_file');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/products'), $filename);
+            $validated['image_path'] = '/uploads/products/' . $filename;
         }
         unset($validated['image_file']);
 
@@ -115,12 +117,13 @@ class ProductController extends Controller implements HasMiddleware
         $validated = $request->validated();
 
         if ($request->hasFile('image_file')) {
-            if ($product->image_path) {
-                $oldPath = str_replace('/storage/', '', $product->image_path);
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            if ($product->image_path && file_exists(public_path($product->image_path))) {
+                unlink(public_path($product->image_path));
             }
-            $path = $request->file('image_file')->store('products', 'public');
-            $validated['image_path'] = '/storage/' . $path;
+            $file = $request->file('image_file');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/products'), $filename);
+            $validated['image_path'] = '/uploads/products/' . $filename;
         }
         unset($validated['image_file']);
 

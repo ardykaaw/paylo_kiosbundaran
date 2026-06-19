@@ -35,7 +35,7 @@ export default function ProductCreate() {
         max_stock: 0,
         reorder_point: 0,
         current_stock: 0,
-        image_path: '',
+        image_file: null as File | null,
         is_active: true,
         is_track_stock: true,
     });
@@ -108,7 +108,7 @@ export default function ProductCreate() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {categories.map((cat: any) => (
-                                            <SelectItem key={cat.id} value={cat.id}>
+                                            <SelectItem key={cat.id} value={cat.id.toString()}>
                                                 {cat.name}
                                             </SelectItem>
                                         ))}
@@ -258,12 +258,15 @@ export default function ProductCreate() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="image_path">Path Gambar</Label>
+                                    <Label htmlFor="image_file">Gambar Produk</Label>
                                     <Input
-                                        id="image_path"
-                                        value={data.image_path}
-                                        onChange={(e) => setData('image_path', e.target.value)}
+                                        id="image_file"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => setData('image_file', e.target.files ? e.target.files[0] : null)}
+                                        className="cursor-pointer"
                                     />
+                                    {errors.image_file && <p className="text-sm text-red-600">{errors.image_file as string}</p>}
                                 </div>
                             </div>
 

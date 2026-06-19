@@ -75,9 +75,17 @@ class ProductController extends Controller implements HasMiddleware
 
     public function store(ProductRequest $request): RedirectResponse
     {
+        $validated = $request->validated();
+        
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('products', 'public');
+            $validated['image_path'] = '/storage/' . $path;
+        }
+        unset($validated['image_file']);
+
         Product::create([
             'tenant_id' => auth()->user()->tenant_id,
-            ...$request->validated(),
+            ...$validated,
         ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Product created successfully.']);
@@ -104,7 +112,19 @@ class ProductController extends Controller implements HasMiddleware
     {
         $this->authorizeTenant($product);
 
-        $product->update($request->validated());
+        $validated = $request->validated();
+
+        if ($request->hasFile('image_file')) {
+            if ($product->image_path) {
+                $oldPath = str_replace('/storage/', '', $product->image_path);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            }
+            $path = $request->file('image_file')->store('products', 'public');
+            $validated['image_path'] = '/storage/' . $path;
+        }
+        unset($validated['image_file']);
+
+        $product->update($validated);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Product updated successfully.']);
 

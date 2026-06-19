@@ -33,7 +33,7 @@ class ProductRequest extends FormRequest
             'max_stock' => ['required', 'integer', 'min:0'],
             'reorder_point' => ['required', 'integer', 'min:0'],
             'current_stock' => ['required', 'integer', 'min:0'],
-            'image_path' => ['nullable', 'string', 'max:255'],
+            'image_file' => ['nullable', 'image', 'max:2048'],
             'is_active' => ['boolean'],
             'is_track_stock' => ['boolean'],
         ];

@@ -554,7 +554,7 @@ export default function POSIndex() {
                                 <SelectContent>
                                     <SelectItem value="all">Semua Kategori</SelectItem>
                                     {categories.map((cat: any) => (
-                                        <SelectItem key={cat.id} value={cat.id}>
+                                        <SelectItem key={cat.id} value={cat.id.toString()}>
                                             <div className="flex items-center gap-2">
                                                 {cat.color && <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: cat.color }} />}
                                                 {cat.name}
@@ -599,12 +599,16 @@ export default function POSIndex() {
                                             }}
                                         >
                                             <div className="aspect-square bg-muted relative overflow-hidden flex items-center justify-center">
-                                                <div className={`w-full h-full bg-gradient-to-br flex items-center justify-center ${isLowStock ? 'from-destructive/20 to-destructive/5' : 'from-primary/20 to-primary/5'
-                                                    }`}>
-                                                    <span className={`text-3xl font-bold ${isLowStock ? 'text-destructive/60' : 'text-primary/60'}`}>
-                                                        {product.name?.charAt(0).toUpperCase() || 'P'}
-                                                    </span>
-                                                </div>
+                                                {product.image_path ? (
+                                                    <img src={product.image_path} alt={product.name} className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-60' : ''}`} />
+                                                ) : (
+                                                    <div className={`w-full h-full bg-gradient-to-br flex items-center justify-center ${isLowStock ? 'from-destructive/20 to-destructive/5' : 'from-primary/20 to-primary/5'
+                                                        }`}>
+                                                        <span className={`text-3xl font-bold ${isLowStock ? 'text-destructive/60' : 'text-primary/60'}`}>
+                                                            {product.name?.charAt(0).toUpperCase() || 'P'}
+                                                        </span>
+                                                    </div>
+                                                )}
                                                 {/* Status indicator */}
                                                 {isOutOfStock ? (
                                                     <div className="absolute top-2 right-2 bg-destructive/90 text-destructive-foreground px-2 py-1 text-[10px] font-bold rounded shadow-md">
@@ -673,8 +677,8 @@ export default function POSIndex() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="walk-in">Pelanggan Langsung</SelectItem>
-                                {customers.map((customer) => (
-                                    <SelectItem key={customer.id} value={customer.id}>
+                                {customers.map((customer: any) => (
+                                    <SelectItem key={customer.id} value={customer.id.toString()}>
                                         {customer.name}
                                     </SelectItem>
                                 ))}

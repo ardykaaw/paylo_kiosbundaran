@@ -24,6 +24,7 @@ interface CartItem {
     is_wholesale?: boolean;
     wholesale_info_string?: string;
     wholesale_unit?: string;
+    disable_wholesale?: boolean;
 }
 
 export default function POSIndex() {
@@ -145,7 +146,7 @@ export default function POSIndex() {
                 let currentWholesaleUnit = '';
 
                 if (product.wholesale_prices && product.wholesale_prices.length > 0) {
-                    if (isSpecialCustomer) {
+                    if (isSpecialCustomer && !item.disable_wholesale) {
                         const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
                         currentUnitPrice = Number(sortedByPrice[0].price);
                         currentWholesaleUnit = sortedByPrice[0].unit || product.unit;
@@ -223,6 +224,7 @@ export default function POSIndex() {
                 is_wholesale: isWholesale,
                 wholesale_info_string: wholesaleInfoString,
                 wholesale_unit: currentWholesaleUnit,
+                disable_wholesale: false,
             };
             setCart([...cart, newItem]);
             setShowPriceModal(false);
@@ -232,6 +234,44 @@ export default function POSIndex() {
 
     const removeFromCart = (productId: string) => {
         setCart(cart.filter((item) => item.product_id !== productId));
+    };
+
+    const toggleWholesale = (productId: string, currentState: boolean | undefined) => {
+        setCart(prevCart => prevCart.map(item => {
+            if (item.product_id === productId) {
+                const newState = !currentState;
+                const product = products.find((p: any) => p.id === productId);
+                let currentUnitPrice = Number(product?.selling_price) || 0;
+                let isWholesale = false;
+                let currentWholesaleUnit = '';
+
+                if (product?.wholesale_prices && product.wholesale_prices.length > 0 && !newState) {
+                    const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
+                    currentUnitPrice = Number(sortedByPrice[0].price);
+                    currentWholesaleUnit = sortedByPrice[0].unit || product.unit;
+                    isWholesale = true;
+                }
+
+                const lineTotal = currentUnitPrice * item.quantity;
+                const discountAmount = lineTotal * (item.discount_percent / 100);
+                const afterDiscount = lineTotal - discountAmount;
+                const taxAmount = afterDiscount * (item.tax_percent / 100);
+                const itemTotal = afterDiscount + taxAmount;
+
+                return { 
+                    ...item, 
+                    disable_wholesale: newState,
+                    unit_price: currentUnitPrice,
+                    is_wholesale: isWholesale,
+                    wholesale_unit: currentWholesaleUnit,
+                    subtotal: lineTotal,
+                    discount_amount: discountAmount,
+                    tax_amount: taxAmount,
+                    total: itemTotal,
+                };
+            }
+            return item;
+        }));
     };
 
     const updateQuantity = (productId: string, quantity: number) => {
@@ -257,7 +297,7 @@ export default function POSIndex() {
                     const isSpecialCustomer = customers.find((c: any) => c.id === selectedCustomer)?.is_special_wholesale;
 
                     if (product.wholesale_prices && product.wholesale_prices.length > 0) {
-                        if (isSpecialCustomer) {
+                        if (isSpecialCustomer && !item.disable_wholesale) {
                             const sortedByPrice = [...product.wholesale_prices].sort((a: any, b: any) => Number(a.price) - Number(b.price));
                             basePrice = Number(sortedByPrice[0].price);
                             currentWholesaleUnit = sortedByPrice[0].unit || product.unit;
@@ -351,10 +391,10 @@ export default function POSIndex() {
             branch: branch,
             items: cart.map((item, index) => ({
                 id: index,
-                product: { name: item.product_name, unit: item.wholesale_unit || 'PCS' },
+                product: { name: item.product_name, unit: item.is_wholesale ? item.wholesale_unit : 'PCS' },
                 unit_price: item.unit_price,
                 quantity: item.quantity,
-                notes: item.wholesale_unit || '',
+                notes: item.is_wholesale ? item.wholesale_unit : '',
                 total: item.total
             })),
             subtotal,
@@ -413,7 +453,7 @@ export default function POSIndex() {
                 tax_amount: item.tax_amount,
                 subtotal: item.subtotal,
                 total: item.total,
-                notes: item.wholesale_unit || '',
+                notes: item.is_wholesale ? item.wholesale_unit : '',
             })),
         };
 
@@ -660,12 +700,29 @@ export default function POSIndex() {
                                                 <p className="font-bold text-4xl leading-tight truncate">{item.product_name}</p>
                                                 <p className="text-2xl uppercase tracking-wider text-muted-foreground mt-0.5">{item.product_sku}</p>
                                                 {item.wholesale_info_string && isSpecialCustomer && (
-                                                    <p className="text-sm text-green-600 dark:text-green-400 mt-0.5 font-medium leading-tight">Grosir: {item.wholesale_info_string}</p>
-                                                )}
-                                                {item.is_wholesale && (
-                                                    <span className="inline-block mt-1 bg-green-500/10 text-green-600 border border-green-500/20 text-xs font-bold px-1.5 py-0.5 rounded">
-                                                        Harga Grosir Aktif
-                                                    </span>
+                                                    <div className="mt-1 flex flex-col gap-1.5">
+                                                        <p className="text-sm text-green-600 dark:text-green-400 font-medium leading-tight">Grosir: {item.wholesale_info_string}</p>
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                onClick={() => toggleWholesale(item.product_id, item.disable_wholesale)}
+                                                                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                                                                    !item.disable_wholesale ? 'bg-green-500' : 'bg-muted-foreground/30'
+                                                                }`}
+                                                                role="switch"
+                                                                aria-checked={!item.disable_wholesale}
+                                                            >
+                                                                <span className="sr-only">Toggle Harga Grosir</span>
+                                                                <span
+                                                                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                                                        !item.disable_wholesale ? 'translate-x-4' : 'translate-x-0'
+                                                                    }`}
+                                                                />
+                                                            </button>
+                                                            <span className="text-xs font-semibold text-muted-foreground">
+                                                                {!item.disable_wholesale ? 'Harga Grosir Aktif' : 'Harga Grosir Nonaktif'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 )}
                                             </div>
                                             <Button

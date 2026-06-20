@@ -131,7 +131,7 @@ export default function POSIndex() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [products, cart]);
+    }, [products, cart, selectedCustomer, customers]);
 
     useEffect(() => {
         if (cart.length > 0) {
@@ -547,7 +547,14 @@ export default function POSIndex() {
                                     className="pl-9 h-11 bg-background/50 focus-visible:ring-primary shadow-sm"
                                 />
                             </div>
-                            <Select value={selectedCategory || 'all'} onValueChange={(value) => setSelectedCategory(value === 'all' ? '' : value)}>
+                            <Select value={selectedCategory || 'all'} onValueChange={(value) => {
+                                setSelectedCategory(value === 'all' ? '' : value);
+                                setTimeout(() => {
+                                    if (document.activeElement instanceof HTMLElement) {
+                                        document.activeElement.blur();
+                                    }
+                                }, 50);
+                            }}>
                                 <SelectTrigger className="h-11 w-48">
                                     <SelectValue placeholder="All Categories" />
                                 </SelectTrigger>
@@ -671,7 +678,14 @@ export default function POSIndex() {
                                 {cart.length} item
                             </span>
                         </div>
-                        <Select value={selectedCustomer || 'walk-in'} onValueChange={(value) => setSelectedCustomer(value === 'walk-in' ? '' : value)}>
+                        <Select value={selectedCustomer || 'walk-in'} onValueChange={(value) => {
+                            setSelectedCustomer(value === 'walk-in' ? '' : value);
+                            setTimeout(() => {
+                                if (document.activeElement instanceof HTMLElement) {
+                                    document.activeElement.blur();
+                                }
+                            }, 50);
+                        }}>
                             <SelectTrigger className="h-7 w-full text-xs">
                                 <SelectValue placeholder="Walk-in Customer" />
                             </SelectTrigger>

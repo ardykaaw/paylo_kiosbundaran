@@ -13,6 +13,7 @@ interface CartItem {
     product_id: string;
     product_name: string;
     product_sku: string;
+    description?: string;
     quantity: number;
     unit_price: number;
     discount_percent: number;
@@ -213,6 +214,7 @@ export default function POSIndex() {
                 product_id: product.id,
                 product_name: product.name,
                 product_sku: product.sku,
+                description: product.description,
                 quantity: overrideQuantity,
                 unit_price: price,
                 discount_percent: 0,
@@ -717,6 +719,11 @@ export default function POSIndex() {
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-bold text-4xl leading-tight truncate">{item.product_name}</p>
                                                 <p className="text-2xl uppercase tracking-wider text-muted-foreground mt-0.5">{item.product_sku}</p>
+                                                {item.description && (
+                                                    <p className="text-sm text-muted-foreground/70 italic line-clamp-1 mt-0.5" title={item.description}>
+                                                        {item.description}
+                                                    </p>
+                                                )}
                                                 {item.wholesale_info_string && isSpecialCustomer && (
                                                     <div className="mt-1 flex flex-col gap-1.5">
                                                         <p className="text-sm text-green-600 dark:text-green-400 font-medium leading-tight">Grosir: {item.wholesale_info_string}</p>
